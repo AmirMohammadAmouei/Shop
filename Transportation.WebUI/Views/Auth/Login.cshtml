@@ -1,0 +1,122 @@
+﻿@model Transportation.Buisness.Dtos.Auth.LoginRequestDto
+
+<div class="page-login">
+
+    <!-- ===== LEFT VISUAL PANEL ===== -->
+    <div class="left-panel">
+        <svg class="route-svg" viewBox="0 0 600 700" preserveAspectRatio="xMidYMid slice">
+            <path class="route-path" d="M80,80 Q200,180 300,140 T520,260 Q440,360 300,380 T100,520 Q220,600 380,580" />
+            <path class="route-path-2" d="M520,60 Q380,160 280,200 T60,340 Q180,420 320,440 T540,560" />
+            <circle cx="300" cy="140" r="5" fill="rgba(47,127,240,.6)" />
+            <circle cx="300" cy="140" r="9" fill="none" stroke="rgba(47,127,240,.3)" stroke-width="1.5" />
+            <circle cx="520" cy="260" r="4" fill="rgba(47,127,240,.4)" />
+            <circle cx="100" cy="520" r="4" fill="rgba(47,127,240,.4)" />
+            <circle cx="380" cy="580" r="6" fill="rgba(47,127,240,.6)" />
+            <circle cx="380" cy="580" r="11" fill="none" stroke="rgba(47,127,240,.25)" stroke-width="1.5" />
+        </svg>
+
+        <div class="pin-wrap">
+            <div class="pin-ring">
+                <div class="pin-inner"><i class="bi bi-geo-alt-fill"></i></div>
+            </div>
+        </div>
+
+        <div class="panel-headline">
+            <h2>سامانه مدیریت<br>ناوگان و ردیابی GPS</h2>
+            <p>کنترل کامل محصولات، دسته‌بندی‌ها و اطلاعات شرکت در یک پنل یکپارچه</p>
+        </div>
+
+        <div class="feature-list">
+            <div class="feature-item"><i class="bi bi-geo-alt-fill"></i> ردیابی آنلاین ناوگان</div>
+            <div class="feature-item"><i class="bi bi-box-seam-fill"></i> مدیریت محصولات و دسته‌بندی</div>
+            <div class="feature-item"><i class="bi bi-shield-lock-fill"></i> دسترسی ایمن و اختصاصی</div>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="login-box">
+
+            <div class="login-logo">
+                <i class="bi bi-person-lock" style="font-size: 1.8rem;"></i>
+            </div>
+            <div class="login-title">ورود به پنل مدیریت</div>
+            <div class="login-sub">نام کاربری و رمز عبور خود را وارد کنید</div>
+
+            <form asp-action="Login" asp-controller="Auth" method="post">
+                @Html.AntiForgeryToken()
+
+                <!-- خطای سرور -->
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert-error">
+                        <i class="bi bi-exclamation-circle ms-1"></i>
+                        @foreach (var error in ViewData.ModelState.Values
+                            .SelectMany(v => v.Errors))
+                        {
+                            <span>@error.ErrorMessage</span>
+                        }
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label class="form-label">نام کاربری</label>
+                    <div class="input-wrap">
+                        <i class="bi bi-person fi"></i>
+                        <input asp-for="Username"
+                               type="text"
+                               placeholder="نام کاربری خود را وارد کنید"
+                               autocomplete="username" />
+                    </div>
+                    @* <span asp-validation-for="Username" class="text-danger small"></span> *@
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label">رمز عبور</label>
+                    <div class="input-wrap">
+                        <i class="bi bi-lock fi"></i>
+                        <input asp-for="Password"
+                               type="password"
+                               placeholder="رمز عبور"
+                               autocomplete="current-password" />
+                    </div>
+                    @* <span asp-validation-for="Password" class="text-danger small"></span> *@
+                </div>
+
+                <div class="remember-row">
+                    <label>
+                        <input asp-for="RemeberMe" class="custom-check" />
+                        مرا به خاطر بسپار
+                    </label>
+                    <a href="#">فراموشی رمز عبور؟</a>
+                </div>
+
+                <button type="submit" class="btn-login">ورود به پنل</button>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        toastr.options = {
+            rtl: true,
+            positionClass: 'toast-top-right',
+            timeOut: 4000,
+            closeButton: true,
+            progressBar: true,
+        };
+
+        @if (TempData["Error"] != null)
+            {
+                <text>toastr.error('@TempData["Error"]');</text>
+        }
+
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <text>toastr.warning('@error.ErrorMessage');</text>
+        }
+    </script>
+}

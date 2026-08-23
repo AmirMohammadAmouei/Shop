@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل مدیریت محصولات | ناوگان و GPS</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/index.css">
+    <link rel="stylesheet" href="~/css/toastr.min.css">
+    <link rel="stylesheet" href="~/css/sweetalert2.min.css">
+    <style>
+
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <div class="brand d-flex align-items-center gap-2">
+            <div class="brand-mark route-pattern">
+                <i class="bi bi-geo-alt-fill" style="color:#fff;font-size:1.2rem;"></i>
+            </div>
+            <div>
+                <div class="brand-title">پنل مدیریت</div>
+                <div class="brand-sub">ناوگان و ردیابی GPS</div>
+            </div>
+        </div>
+        <nav>
+            <a href="#" class="nav-link" data-tab="dashboard"><i class="bi bi-grid-1x2-fill"></i><span>داشبورد</span></a>
+            <a asp-area="Admin" asp-controller="ProductCategory" asp-action="Index" class="nav-link" data-tab="categories"><i class="bi bi-tags-fill"></i><span>دسته‌بندی محصولات</span></a>
+            <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="nav-link" data-tab="products"><i class="bi bi-box-seam-fill"></i><span>محصولات</span></a>
+            <a asp-area="Admin" asp-controller="AboutUs" asp-action="Index" class="nav-link" data-tab="company"><i class="bi bi-building-fill"></i><span>معرفی شرکت</span></a>
+        </nav>
+        <div class="side-footer">داده‌ها به‌صورت خودکار ذخیره می‌شوند</div>
+    </div>
+    @RenderBody()
+    <!-- PRODUCT MODAL -->
+    <div class="modal fade" id="productModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" style="border-radius:16px;border:none;">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="productModalTitle">محصول جدید</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productForm">
+                        <input type="hidden" id="prodId">
+                        <div class="row g-3">
+                            <div class="col-md-7">
+                                <label class="form-label">نام محصول</label>
+                                <input type="text" class="form-control" id="prodName" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">دسته‌بندی</label>
+                                <select class="form-select" id="prodCategory" required></select>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">قیمت (اختیاری)</label>
+                                <input type="text" class="form-control" id="prodPrice" placeholder="مثلاً: ۲٬۵۰۰٬۰۰۰ تومان">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">توضیحات محصول</label>
+                                <textarea class="form-control" id="prodDesc" rows="3"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">تصاویر محصول</label>
+                                <input type="file" accept="image/*" multiple class="form-control" id="prodImages">
+                                <div class="thumb-strip" id="prodThumbs"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-navy" data-bs-dismiss="modal">انصراف</button>
+                    <button type="button" class="btn btn-primary-navy" onclick="saveProduct()">ذخیره محصول</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast-container save-toast">
+        <div id="saveToast" class="toast align-items-center text-white border-0" role="alert" style="background:var(--navy-900);">
+            <div class="d-flex">
+                <div class="toast-body"><i class="bi bi-check-circle-fill ms-1"></i> <span id="toastMsg">ذخیره شد</span></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/js/jquery-4.0.0.min.js"></script>
+    <script src="~/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/toastr.min.js"></script>
+    <script src="~/js/ajax-helper.js"></script>
+    <script src="~/js/sweetalert2.all.min.js"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

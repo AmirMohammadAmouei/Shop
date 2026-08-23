@@ -1,0 +1,177 @@
+﻿
+<div id="main">
+
+  <!-- DASHBOARD -->
+  <div class="tab-pane" id="tab-dashboard">
+    @* <div class="topbar">
+      <div>
+        <h1>داشبورد</h1>
+        <p>خلاصه‌ای از دسته‌بندی‌ها و محصولات ثبت‌شده</p>
+      </div>
+    </div>
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-4">
+        <div class="card-soft stat-card d-flex flex-row align-items-center justify-content-between">
+          <div>
+            <div class="num" id="statCats">0</div>
+            <div class="lbl">دسته‌بندی</div>
+          </div>
+          <div class="stat-icon"><i class="bi bi-tags-fill"></i></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card-soft stat-card d-flex flex-row align-items-center justify-content-between">
+          <div>
+            <div class="num" id="statProducts">0</div>
+            <div class="lbl">محصول</div>
+          </div>
+          <div class="stat-icon"><i class="bi bi-box-seam-fill"></i></div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="card-soft stat-card d-flex flex-row align-items-center justify-content-between">
+          <div>
+            <div class="num" id="statImages">0</div>
+            <div class="lbl">تصویر بارگذاری‌شده</div>
+          </div>
+          <div class="stat-icon"><i class="bi bi-images"></i></div>
+        </div>
+      </div>
+    </div> *@
+
+    @* <div class="card-soft p-4">
+      <div class="section-title">شروع سریع</div>
+      <div class="section-sub mb-3">برای مدیریت ویترین محصولات، از منوی کناری استفاده کنید.</div>
+      <div class="d-flex flex-wrap gap-2">
+        <button class="btn btn-primary-navy" onclick="switchTab('categories')"><i class="bi bi-plus-lg ms-1"></i> افزودن دسته‌بندی</button>
+        <button class="btn btn-outline-navy" onclick="switchTab('products')"><i class="bi bi-plus-lg ms-1"></i> افزودن محصول</button>
+        <button class="btn btn-outline-navy" onclick="switchTab('company')"><i class="bi bi-pencil-square ms-1"></i> ویرایش معرفی شرکت</button>
+      </div>
+    </div> *@
+  </div>
+
+  <!-- CATEGORIES -->
+  <div class="tab-pane d-none" id="tab-categories">
+    <div class="topbar">
+      <div>
+        <h1>دسته‌بندی محصولات</h1>
+        <p>دسته‌بندی‌هایی مثل ردیاب خودرو، دوربین ناوگان، سنسور سوخت و ...</p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="card-soft p-4">
+          <div class="section-title mb-3">دسته‌بندی جدید</div>
+          <form id="categoryForm">
+            <div class="mb-3">
+              <label class="form-label">نام دسته‌بندی</label>
+              <input type="text" class="form-control" id="catName" placeholder="مثلاً: ردیاب GPS خودرو" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">توضیح کوتاه (اختیاری)</label>
+              <input type="text" class="form-control" id="catDesc" placeholder="توضیح کوتاه درباره این دسته">
+            </div>
+            <button type="submit" class="btn btn-primary-navy w-100">افزودن دسته‌بندی</button>
+          </form>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="card-soft p-4">
+          <div class="section-title mb-3">لیست دسته‌بندی‌ها</div>
+          <div id="categoryList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="tab-pane d-none" id="tab-products">
+    <div class="topbar">
+      <div>
+        <h1>محصولات</h1>
+        <p>افزودن، ویرایش و مدیریت محصولات به همراه تصاویر</p>
+      </div>
+      <button class="btn btn-primary-navy" data-bs-toggle="modal" data-bs-target="#productModal" onclick="openProductModal()">
+        <i class="bi bi-plus-lg ms-1"></i> محصول جدید
+      </button>
+    </div>
+
+    <div class="d-flex gap-2 mb-3">
+      <select class="form-select" style="max-width:240px;" id="productFilter" onchange="renderProducts()">
+        <option value="">همه دسته‌بندی‌ها</option>
+      </select>
+    </div>
+
+    <div class="row g-3" id="productGrid"></div>
+    <div class="empty-state d-none" id="productEmpty">
+      <i class="bi bi-box-seam"></i>
+      <div class="mt-2 fw-semibold">هنوز محصولی ثبت نشده</div>
+      <div class="section-sub">با دکمه «محصول جدید» اولین محصول را اضافه کنید.</div>
+    </div>
+  </div>
+
+  <!-- COMPANY -->
+  <div class="tab-pane d-none" id="tab-company">
+    <div class="topbar">
+      <div>
+        <h1>معرفی شرکت</h1>
+        <p>اطلاعاتی که در صفحه معرفی شرکت نمایش داده می‌شود</p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="card-soft p-4">
+          <form id="companyForm">
+            <div class="mb-3">
+              <label class="form-label">نام شرکت</label>
+              <input type="text" class="form-control" id="coName" placeholder="مثلاً: شرکت ناوگان‌یار">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">شعار / تگ‌لاین</label>
+              <input type="text" class="form-control" id="coSlogan" placeholder="راهکار هوشمند مدیریت ناوگان و ردیابی GPS">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">درباره شرکت</label>
+              <textarea class="form-control" id="coAbout" rows="6" placeholder="متن معرفی شرکت، سابقه فعالیت، خدمات و..."></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">شماره تماس</label>
+              <input type="text" class="form-control" id="coPhone" placeholder="مثلاً: ۰۲۱-۱۲۳۴۵۶۷۸">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">آدرس ایمیل</label>
+              <input type="email" class="form-control" id="coEmail" placeholder="info@company.com">
+            </div>
+            <div class="mb-4">
+              <label class="form-label">لوگوی شرکت</label>
+              <div class="d-flex align-items-center gap-3">
+                <div class="company-logo-preview" id="logoPreview"><i class="bi bi-building text-secondary"></i></div>
+                <input type="file" accept="image/*" class="form-control" id="coLogo" style="max-width:280px;">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary-navy">ذخیره اطلاعات شرکت</button>
+          </form>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card-soft p-4">
+          <div class="section-title mb-3">پیش‌نمایش</div>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="company-logo-preview" id="logoPreview2"><i class="bi bi-building text-secondary"></i></div>
+            <div>
+              <div class="fw-bold" id="prevName">نام شرکت</div>
+              <div class="section-sub" id="prevSlogan">شعار شرکت</div>
+            </div>
+          </div>
+          <p class="section-sub" id="prevAbout" style="white-space:pre-line;">متن معرفی شرکت اینجا نمایش داده می‌شود.</p>
+          <hr>
+          <div class="section-sub"><i class="bi bi-telephone ms-1"></i><span id="prevPhone">—</span></div>
+          <div class="section-sub"><i class="bi bi-envelope ms-1"></i><span id="prevEmail">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

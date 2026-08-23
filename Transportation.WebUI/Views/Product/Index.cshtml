@@ -1,0 +1,234 @@
+﻿@using Transportation.Buisness.Services.ProductCategories.Dto
+@using Transportation.Buisness._0.Common.Paging
+@model SPFOutPutDto<ProductCategoryListResponseDto>
+
+@{
+    ViewData["Title"] = "محصولات | راهنگار";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="banner">
+    <div class="wrap">
+        <div class="crumb">
+            <a asp-controller="Home" asp-action="Index">خانه</a> / <span>محصولات</span>
+        </div>
+        <h1>محصولات راهنگار</h1>
+        <p>مجموعه‌ای کامل از سخت‌افزارها و نرم‌افزارهای ردیابی و مدیریت هوشمند ناوگان، متناسب با نیاز خودروهای شخصی و سازمانی.</p>
+    </div>
+</section>
+
+<section class="shop">
+    <div class="wrap">
+
+        <aside>
+            <div class="side-box">
+                <h4>دسته‌بندی محصولات</h4>
+                <ul class="cat-list">
+                    <li>
+                        <a href="#" class="active" onclick="filterCategory(0, this)">
+                            همه محصولات
+                        </a>
+                    </li>
+                    @foreach (var cat in Model.Items)
+                    {
+                        <li>
+                            <a href="#" onclick="filterCategory(@cat.Id, this)">
+                                @cat.Name
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <div class="promo-box">
+                <span class="ic">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+                        <path d="M21 19a2 2 0 0 1-2 2h-1v-7h3Z" />
+                        <path d="M3 19a2 2 0 0 0 2 2h1v-7H3Z" />
+                    </svg>
+                </span>
+                <h4>در انتخاب محصول مطمئن نیستید؟</h4>
+                <p>کارشناسان ما رایگان راهنمایی‌تان می‌کنند</p>
+                <a href="#" class="pill pill-solid pill-sm"
+                   style="background:#fff; color:var(--blue); width:100%; display:flex;">
+                    مشاوره رایگان
+                </a>
+            </div>
+        </aside>
+
+        <div>
+            <div class="toolbar">
+                <div class="result-count" id="resultCount">در حال بارگذاری...</div>
+                <div class="toolbar-right">
+                    <div class="search-box">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none">
+                            <circle cx="11" cy="11" r="7" />
+                            <path d="m21 21-4.3-4.3" />
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="جستجوی محصول..."
+                               oninput="onSearch(this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-grid" id="productGrid">
+                <div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--gray);">
+                    در حال بارگذاری...
+                </div>
+            </div>
+
+            <div class="pagination" id="pagination"></div>
+        </div>
+
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        let currentCatId = 0;
+        let currentPage = 1;
+        const pageSize = 9;
+        let searchTimer = null;
+
+        // کلیک روی دسته‌بندی
+        function filterCategory(catId, el) {
+            event.preventDefault();
+            currentCatId = catId;
+            currentPage = 1;
+            document.querySelectorAll('.cat-list a').forEach(a => a.classList.remove('active'));
+            el.classList.add('active');
+            loadProducts();
+        }
+
+        // جستجو با debounce
+        function onSearch(val) {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                currentPage = 1;
+                loadProducts();
+            }, 400);
+        }
+
+        // رفتن به صفحه
+        function goToPage(page) {
+            currentPage = page;
+            loadProducts();
+            window.scrollTo({
+                top: document.getElementById('productGrid').offsetTop - 120,
+                behavior: 'smooth'
+            });
+        }
+
+        // لود محصولات
+        async function loadProducts() {
+            document.getElementById('productGrid').innerHTML = `
+                    <div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--gray);">
+                        <i class="bi bi-arrow-repeat"></i> در حال بارگذاری...
+                    </div>`;
+            document.getElementById('pagination').innerHTML = '';
+            document.getElementById('resultCount').innerHTML = '...';
+
+            const search = document.getElementById('searchInput').value ?? '';
+
+            const url = `/Product/GetProductsByCategoryId?categoryId=${currentCatId}`
+                + `&PageNumber=${currentPage}&PageSize=${pageSize}`
+                + `&SearchTerm=${encodeURIComponent(search)}`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (!data.isSucceded || !data.items || data.items.length === 0) {
+                    document.getElementById('productGrid').innerHTML = `
+                            <div style="grid-column:1/-1; text-align:center; padding:60px; color:var(--gray);">
+                                <i class="bi bi-box-seam" style="font-size:2.4rem; opacity:.4; display:block; margin:0 auto 12px;"></i>
+                                <p>محصولی یافت نشد</p>
+                            </div>`;
+                    document.getElementById('resultCount').innerHTML = 'محصولی یافت نشد';
+                    return;
+                }
+
+                // آپدیت تعداد نتایج
+                const from = (currentPage - 1) * pageSize + 1;
+                const to = Math.min(currentPage * pageSize, data.totalCount);
+                document.getElementById('resultCount').innerHTML =
+                    `نمایش <b>${toFa(from)} تا ${toFa(to)}</b> از <b>${toFa(data.totalCount)}</b> محصول`;
+
+                // رندر کارت‌ها
+                document.getElementById('productGrid').innerHTML = data.items.map(p => `
+                        <div class="p-card">
+                            <div class="thumb">
+                                ${p.images && p.images.length
+                        ? `<img src="${p.images[0].path}" alt="${p.name}"
+                                           style="width:88px; height:88px; object-fit:contain;">`
+                        : `<svg viewBox="0 0 100 100">
+                                           <rect x="20" y="20" width="60" height="60" rx="8" fill="#e3e9f7"/>
+                                           <path d="M35 50h30M50 35v30" stroke="#3f8bff"
+                                                 stroke-width="3" stroke-linecap="round"/>
+                                       </svg>`
+                    }
+                            </div>
+                            <div class="body">
+                                <span class="cat-lbl">${p.categoryName ?? ''}</span>
+                                <h3>${p.name ?? ''}</h3>
+                                <p>${p.description ?? ''}</p>
+                                <div class="foot-row">
+                                ${
+                                    p.showPrice ?
+                        `<span class="price">${p.price.toLocaleString('fa-IR')} <span>تومان</span></span>`
+                        :
+                        `<a href="tel:+98XXXXXXXXXX" class="contact-price">
+            <i class="bi bi-telephone-fill"></i> تماس بگیرید
+        </a>`
+                                }
+                                </div>  
+                            </div>
+                        </div>
+                    `).join('');
+
+                renderPagination(data.totalPages, data.currentPage);
+
+            } catch (err) {
+                document.getElementById('productGrid').innerHTML = `
+                        <div style="grid-column:1/-1; text-align:center; padding:40px; color:#b91c1c;">
+                            خطا در بارگذاری محصولات
+                        </div>`;
+            }
+        }
+
+        // رندر صفحه‌بندی
+        function renderPagination(totalPages, page) {
+            const pg = document.getElementById('pagination');
+            if (totalPages <= 1) { pg.innerHTML = ''; return; }
+
+            let html = `<a href="#" onclick="event.preventDefault(); ${page > 1 ? `goToPage(${page - 1})` : ''}"
+                               ${page === 1 ? 'style="opacity:.4; pointer-events:none;"' : ''}>‹</a>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === page) {
+                    html += `<a href="#" class="active" onclick="event.preventDefault();">${toFa(i)}</a>`;
+                } else if (i === 1 || i === totalPages || Math.abs(i - page) <= 1) {
+                    html += `<a href="#" onclick="event.preventDefault(); goToPage(${i})">${toFa(i)}</a>`;
+                } else if (Math.abs(i - page) === 2) {
+                    html += `<span class="dots">…</span>`;
+                }
+            }
+
+            html += `<a href="#" onclick="event.preventDefault(); ${page < totalPages ? `goToPage(${page + 1})` : ''}"
+                            ${page === totalPages ? 'style="opacity:.4; pointer-events:none;"' : ''}>›</a>`;
+
+            pg.innerHTML = html;
+        }
+
+        // تبدیل عدد به فارسی
+        function toFa(n) {
+            return n.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+        }
+
+        // لود اولیه
+        window.addEventListener('DOMContentLoaded', () => {
+            filterCategory(0, document.querySelector('.cat-list a'));
+        });
+    </script>
+}

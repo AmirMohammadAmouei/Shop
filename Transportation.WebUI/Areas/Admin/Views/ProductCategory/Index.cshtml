@@ -1,0 +1,217 @@
+﻿@using Transportation.Buisness.Services.ProductCategories.Dto
+@using Transportation.Buisness._0.Common.Paging
+@model SPFOutPutDto<ProductCategoryListResponseDto>
+
+@{
+    ViewData["Title"] = "دسته‌بندی محصولات";
+}
+
+<div id="main">
+    <div class="topbar">
+        <div>
+            <h1>دسته‌بندی محصولات</h1>
+            <p>مدیریت دسته‌بندی‌های محصولات</p>
+        </div>
+        <button class="btn btn-primary-navy" id="btnAddCategory">
+            <i class="bi bi-plus-lg ms-1"></i> دسته‌بندی جدید
+        </button>
+    </div>
+
+    <div class="p-4">
+        <table class="table table-bordered table-hover align-middle" id="categoryList">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>نام دسته‌بندی</th>
+                    <th class="text-center" style="width: 140px;">عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Items.Any())
+                {
+                
+                            int row = 1;
+                    @foreach (var cat in Model.Items)
+                    {
+                        <tr id="cat-@cat.Id">
+                            <td>@(row++)</td>
+                            <td class="fw-semibold">@cat.Name</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-navy js-edit-category"
+                                        data-id="@cat.Id" data-name="@cat.Name">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-navy text-danger js-delete-category"
+                                        data-id="@cat.Id">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr id="emptyState">
+                        <td colspan="3" class="text-center text-muted py-4">
+                            <i class="bi bi-tags fs-4 d-block mb-2"></i>
+                            دسته‌بندی‌ای ثبت نشده
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px;border:none;">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="modalTitle">دسته‌بندی جدید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editId" name="id">
+                <div class="mb-3">
+                    <label class="form-label">نام دسته‌بندی</label>
+                    <input type="text" class="form-control" id="catName" placeholder="مثلاً: ردیاب GPS خودرو">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-navy" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-primary-navy" id="saveBtn">ذخیره</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        debugger;
+        /* ========================================================
+           بخش ۱: تنظیمات و مسیرها
+           ======================================================== */
+        const CategoryUrls = {
+            create: '@Url.Action("Create")',
+            update: '@Url.Action("Update")',
+            delete: '@Url.Action("Delete")'
+        };
+
+        /* ========================================================
+           بخش ۲: منطق مدیریت Modal (باز کردن / پر کردن فرم)
+           ======================================================== */
+        const CategoryModal = (function() {
+            let instance = null;
+
+            function get() {
+                if (!instance) {
+                    instance = new bootstrap.Modal(document.getElementById('categoryModal'));
+                }
+                return instance;
+            }
+
+            function open(id, name) {
+                $('#editId').val(id || '');
+                $('#catName').val(name || '');
+                $('#modalTitle').text(id ? 'ویرایش دسته‌بندی' : 'دسته‌بندی جدید');
+                get().show();
+            }
+
+            function close() {
+                get().hide();
+            }
+
+            return { open, close };
+        })();
+
+        /* ========================================================
+           بخش ۳: عملیات ذخیره (Create / Update)
+           ======================================================== */
+        function saveCategory() {
+            const id = $('#editId').val();
+            const name = $('#catName').val().trim();
+
+            if (!name) {
+                toastr.warning('نام دسته‌بندی الزامی است');
+                return;
+            }
+
+            const isEdit = !!id;
+            const url = isEdit ? `${CategoryUrls.update}?id=${id}` : CategoryUrls.create;
+            const data = isEdit ? { id: id, name: name } : { name: name };
+            AppAjax.post(url, data, { loadingTarget: '#saveBtn' })
+                .then(() => {
+                    toastr.success(isEdit ? 'دسته‌بندی ویرایش شد' : 'دسته‌بندی افزوده شد');
+                    CategoryModal.close();
+                    setTimeout(() => location.reload(), 800);
+                })
+                .catch(() => {
+                    // پیام خطا از قبل توسط AppAjax نمایش داده شده
+                });
+        }
+
+        /* ========================================================
+           بخش ۴: عملیات حذف
+           ======================================================== */
+       function deleteCategory(id) {
+    Swal.fire({
+        title: 'حذف دسته‌بندی',
+        text: 'این دسته‌بندی برای همیشه حذف می‌شود. آیا مطمئن هستید؟',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'بله، حذف شود',
+        cancelButtonText: 'انصراف',
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        reverseButtons: true,
+        customClass: { popup: 'swal-rtl' }
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        AppAjax.post(`${CategoryUrls.delete}?id=${id}`)
+            .then(() => {
+                toastr.success('دسته‌بندی حذف شد');
+                $(`#cat-${id}`).fadeOut(300, function () {
+                    $(this).remove();
+                    checkEmptyState();
+                });
+            })
+            .catch(() => {
+                // پیام خطا از AppAjax نمایش داده شده
+            });
+    });
+}
+
+        // بعد از حذف آخرین ردیف، پیام "خالی" رو نشون بده
+        function checkEmptyState() {
+            if ($('#categoryList tbody tr').length === 0) {
+                $('#categoryList tbody').html(`
+                    <tr id="emptyState">
+                        <td colspan="3" class="text-center text-muted py-4">
+                            <i class="bi bi-tags fs-4 d-block mb-2"></i>
+                            دسته‌بندی‌ای ثبت نشده
+                        </td>
+                    </tr>
+                `);
+            }
+        }
+
+        /* ========================================================
+           بخش ۵: اتصال رویدادها (Event Binding)
+           ======================================================== */
+        $(function() {
+            $('#btnAddCategory').on('click', () => CategoryModal.open());
+
+            $('#saveBtn').on('click', saveCategory);
+
+            $(document).on('click', '.js-edit-category', function() {
+                CategoryModal.open($(this).data('id'), $(this).data('name'));
+            });
+
+            $(document).on('click', '.js-delete-category', function() {
+                deleteCategory($(this).data('id'));
+            });
+        });
+    </script>
+}

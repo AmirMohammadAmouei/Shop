@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Transportation.Buisness/Transportation.Buisness.csproj" />
+  <Project Path="Transportation.DataAccess/Transportation.DataAccess.csproj" />
+  <Project Path="Transportation.Entities/Transportation.Entities.csproj" />
+  <Project Path="Transportation.WebUI/Transportation.WebUI.csproj" />
+</Solution>

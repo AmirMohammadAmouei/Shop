@@ -1,0 +1,360 @@
+﻿@using Transportation.Buisness.Services.Products.Dto
+@using Transportation.Buisness.Services.ProductCategories.Dto
+@using Transportation.Buisness._0.Common.Paging
+@model SPFOutPutDto<ProductListResponseDto>
+
+@{
+    ViewData["Title"] = "محصولات";
+    var categories = ViewBag.Categories as List<ProductCategoryListResponseDto> ?? new();
+}
+
+<div id="main">
+    <div class="topbar">
+        <div>
+            <h1>محصولات</h1>
+            <p>مدیریت محصولات</p>
+        </div>
+        <button class="btn btn-primary-navy" id="btnAddProduct">
+            <i class="bi bi-plus-lg ms-1"></i> محصول جدید
+        </button>
+    </div>
+
+    <div class="p-4">
+        <table class="table table-bordered table-hover align-middle" id="productList">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>تصویر</th>
+                    <th>نام محصول</th>
+                    <th>دسته‌بندی</th>
+                    <th>قیمت</th>
+                    <th class="text-center" style="width:140px;">عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Items.Any())
+                {
+                    int row = 1;
+                    @foreach (var product in Model.Items)
+                    {
+                        <tr id="product-@product.Id">
+                            <td>@(row++)</td>
+                            <td>
+                                @if (product.Images.Any())
+                                {
+                                    <img src="@product.Images.First().Path"
+                                         style="width:48px;height:48px;object-fit:cover;border-radius:8px;">
+                                }
+                                else
+                                {
+                                    <i class="bi bi-image text-muted fs-4"></i>
+                                }
+                            </td>
+                            <td class="fw-semibold">@product.Name</td>
+                            <td>@product.CategoryName</td>
+                            <td>
+                                @if (product.ShowPrice)
+                                {
+                                    @product.Price.ToString("N0")
+                                    <small class="ms-1">تومان</small>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">تماس بگیرید</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-navy js-edit-product"
+                                        data-id="@product.Id"
+                                        data-name="@product.Name"
+                                        data-description="@product.Description"
+                                        data-price="@product.Price"
+                                        data-showprice="@product.ShowPrice.ToString().ToLower()"
+                                        data-categoryid="@product.ProductCategoryId"
+                                        data-images="@System.Text.Json.JsonSerializer.Serialize(product.Images)">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-navy text-danger js-delete-product"
+                                        data-id="@product.Id">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr id="emptyState">
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="bi bi-box-seam fs-4 d-block mb-2"></i>
+                            محصولی ثبت نشده
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px;border:none;">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="modalTitle">محصول جدید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editId">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">نام محصول</label>
+                        <input type="text" class="form-control" id="prodName">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">دسته‌بندی</label>
+                        <select class="form-select" id="prodCategory">
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat.Id">@cat.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">قیمت (تومان)</label>
+                        <input type="number" class="form-control" id="prodPrice" min="0">
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end pb-2">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="prodShowPrice">
+                            <label class="form-check-label" for="prodShowPrice">نمایش قیمت</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">توضیحات</label>
+                        <textarea class="form-control" id="prodDescription" rows="3"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">تصاویر محصول</label>
+                        <input type="file" class="form-control" id="prodImages" accept="image/*" multiple>
+                        <div class="d-flex flex-wrap gap-2 mt-3" id="imagePreviewContainer"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-navy" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-primary-navy" id="saveBtn">ذخیره</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const ProductUrls = {
+            create: '@Url.Action("Create")',
+            update: '@Url.Action("Update")',
+            delete: '@Url.Action("Delete")',
+            download: '@Url.Action("DownloadImage")'
+        };
+
+        /* ===== Modal ===== */
+        const ProductModal = (function() {
+            let instance = null;
+            let deletedImageIds = [];
+
+            function get() {
+                if (!instance)
+                    instance = new bootstrap.Modal(document.getElementById('productModal'));
+                return instance;
+            }
+
+            function open(data) {
+                deletedImageIds = [];
+                $('#editId').val(data?.id || '');
+                $('#prodName').val(data?.name || '');
+                $('#prodDescription').val(data?.description || '');
+                $('#prodPrice').val(data?.price || '');
+                $('#prodShowPrice').prop('checked', data?.showPrice || false);
+                $('#prodCategory').val(data?.categoryId || '');
+                $('#modalTitle').text(data?.id ? 'ویرایش محصول' : 'محصول جدید');
+                $('#prodImages').val('');
+
+                const container = $('#imagePreviewContainer').empty();
+                if (data?.images?.length)
+                    data.images.forEach(img => container.append(existingThumb(img.Id, img.Path)));
+
+                get().show();
+            }
+
+            function close() { get().hide(); }
+            function getDeletedIds() { return deletedImageIds; }
+            function addDeletedId(id) { deletedImageIds.push(id); }
+
+            return { open, close, getDeletedIds, addDeletedId };
+        })();
+
+        /* ===== پیش‌نمایش عکس‌های موجود ===== */
+        function existingThumb(id, path) {
+            return $(`
+                    <div class="position-relative" style="width:80px;height:80px;" id="img-${id}">
+                        <img src="${path}"
+                             style="width:80px;height:80px;object-fit:cover;
+                                    border-radius:8px;border:1px solid #dee2e6;">
+                        <button type="button" onclick="removeExistingImage(${id})"
+                                style="position:absolute;top:-6px;left:-6px;width:20px;height:20px;
+                                       border-radius:50%;background:#dc3545;border:none;
+                                       color:#fff;font-size:12px;line-height:1;padding:0;">×</button>
+                        <a href="${ProductUrls.download}?imageId=${id}" download
+                           style="position:absolute;bottom:-6px;left:-6px;width:20px;height:20px;
+                                  border-radius:50%;background:#0d6efd;border:none;display:flex;
+                                  align-items:center;justify-content:center;" title="دانلود">
+                            <i class="bi bi-download" style="color:#fff;font-size:10px;"></i>
+                        </a>
+                    </div>`);
+        }
+
+        function removeExistingImage(id) {
+            ProductModal.addDeletedId(id);
+            $(`#img-${id}`).fadeOut(200, function() { $(this).remove(); });
+        }
+
+        /* ===== پیش‌نمایش عکس‌های جدید ===== */
+        $('#prodImages').on('change', function() {
+            $('#imagePreviewContainer .new-preview').remove();
+            Array.from(this.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    $('#imagePreviewContainer').append(`
+                            <div class="new-preview position-relative" style="width:80px;height:80px;">
+                                <img src="${e.target.result}"
+                                     style="width:80px;height:80px;object-fit:cover;
+                                            border-radius:8px;border:1px solid #dee2e6;">
+                                <span style="position:absolute;top:-6px;right:-6px;background:#198754;
+                                             color:#fff;border-radius:50%;width:18px;height:18px;
+                                             font-size:10px;display:flex;align-items:center;
+                                             justify-content:center;">
+                                    <i class="bi bi-plus"></i>
+                                </span>
+                            </div>`);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        /* ===== ذخیره ===== */
+        function saveProduct() {
+
+            const id = $('#editId').val();
+            const isEdit = !!id;
+            const name = $('#prodName').val().trim();
+            const categoryId = $('#prodCategory').val();
+
+            if (!name) { toastr.warning('نام محصول الزامی است'); return; }
+            if (!categoryId) { toastr.warning('دسته‌بندی الزامی است'); return; }
+
+            const formData = new FormData();
+            if (isEdit) formData.append('Id', id);
+            formData.append('Name', name);
+            formData.append('Description', $('#prodDescription').val().trim());
+            formData.append('Price', $('#prodPrice').val() || 0);
+            formData.append('ShowPrice', $('#prodShowPrice').is(':checked'));
+            formData.append('ProductCategoryId', categoryId);
+
+            const files = document.getElementById('prodImages').files;
+            const imageKey = isEdit ? 'NewImages' : 'Images';
+            for (let i = 0; i < files.length; i++)
+                formData.append(imageKey, files[i]);
+
+            ProductModal.getDeletedIds().forEach(imgId =>
+                formData.append('DeletedImageIds', imgId));
+
+            $('#saveBtn').prop('disabled', true)
+                .html('<span class="spinner-border spinner-border-sm ms-1"></span> در حال ذخیره...');
+
+            $.ajax({
+                url: isEdit ? ProductUrls.update : ProductUrls.create,
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function(xhr) {
+                    const token = $('input[name="__RequestVerificationToken"]').val();
+                    if (token) xhr.setRequestHeader('RequestVerificationToken', token);
+                },
+                success: function() {
+                    toastr.success(isEdit ? 'محصول ویرایش شد' : 'محصول افزوده شد');
+                    ProductModal.close();
+                    setTimeout(() => location.reload(), 800);
+                },
+                error: function(xhr) {
+                    toastr.error(xhr.responseText || 'خطایی رخ داده است');
+                },
+                complete: function() {
+                    $('#saveBtn').prop('disabled', false).text('ذخیره');
+                }
+            });
+        }
+
+        /* ===== حذف ===== */
+        function deleteProduct(id) {
+            Swal.fire({
+                title: 'حذف محصول',
+                text: 'این محصول برای همیشه حذف می‌شود. آیا مطمئن هستید؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'بله، حذف شود',
+                cancelButtonText: 'انصراف',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                reverseButtons: true,
+                customClass: { popup: 'swal-rtl' }
+            }).then(result => {
+                if (!result.isConfirmed) return;
+                AppAjax.delete(`${ProductUrls.delete}?id=${id}`)
+                    .then(() => {
+                        toastr.success('محصول حذف شد');
+                        $(`#product-${id}`).fadeOut(300, function() {
+                            $(this).remove();
+                            checkEmptyState();
+                        });
+                    })
+                    .catch(() => { });
+            });
+        }
+
+        function checkEmptyState() {
+            if ($('#productList tbody tr').length === 0) {
+                $('#productList tbody').html(`
+                        <tr id="emptyState">
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <i class="bi bi-box-seam fs-4 d-block mb-2"></i>
+                                محصولی ثبت نشده
+                            </td>
+                        </tr>`);
+            }
+        }
+
+        /* ===== Event Binding ===== */
+        $(function() {
+            $('#btnAddProduct').on('click', () => ProductModal.open());
+            $('#saveBtn').on('click', saveProduct);
+
+            $(document).on('click', '.js-edit-product', function() {
+                ProductModal.open({
+                    id: $(this).data('id'),
+                    name: $(this).data('name'),
+                    description: $(this).data('description'),
+                    price: $(this).data('price'),
+                    showPrice: $(this).data('showprice'),
+                    categoryId: $(this).data('categoryid'),
+                    images: JSON.parse($(this).attr('data-images') || '[]')
+                });
+            });
+
+            $(document).on('click', '.js-delete-product', function() {
+                deleteProduct($(this).data('id'));
+            });
+        });
+    </script>
+}
