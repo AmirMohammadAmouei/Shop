@@ -16,6 +16,7 @@ namespace Transportation.DataAccess.Contexts
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductImages> ProductImages { get; set; }
         public DbSet<AboutUs> AboutUs { get; set; }
+        public DbSet<MobileApp> MobileApps { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

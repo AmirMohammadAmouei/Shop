@@ -52,18 +52,7 @@ namespace Transportation.WebUI.Areas.Admin.Controllers
                     .Select(e => e.ErrorMessage)
                     .FirstOrDefault());
 
-
-            var dto = new CreateProductDto
-            {
-                Name = request.Name,
-                Description = request.Description,
-                Price = request.Price,
-                ShowPrice = request.ShowPrice,
-                ProductCategoryId = request.ProductCategoryId,
-                Images = request.Images
-            };
-
-            var result = await _productService.Create(dto);
+            var result = await _productService.Create(request);
 
             if (!result.IsSucceeded)
                 return BadRequest(result.Message);

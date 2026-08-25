@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Transportation.Buisness._0.Common.Paging;
 using Transportation.Buisness.Services.AboutUs;
+using Transportation.Buisness.Services.AboutUs.Dtos;
 using Transportation.Buisness.Services.ProductCategories;
 using Transportation.Buisness.Services.ProductCategories.Dto;
 using Transportation.Buisness.Services.Products;
 using Transportation.Buisness.Services.Products.Dto;
+using Transportation.WebUI.Models;
 
 namespace Transportation.WebUI.Controllers
 {
@@ -24,12 +26,20 @@ namespace Transportation.WebUI.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var aboutUsResult = await _aboutUsService.GetDetails();
             var categoriesResult = await _productCategoryService.List(new ProductCategoryListRequestDto());
-            var categories = categoriesResult.IsSucceeded
-                ? categoriesResult.Data
-                : new SPFOutPutDto<ProductCategoryListResponseDto>();
 
-            return View(categories);
+            var model = new HomeViewModel
+            {
+                AboutUs = aboutUsResult.IsSucceeded
+                    ? aboutUsResult.Data
+                    : new AboutUsResponseDto(),
+                Categories = categoriesResult.IsSucceeded
+                    ? categoriesResult.Data.Items
+                    : new List<ProductCategoryListResponseDto>()
+            };
+
+            return View(model);
         }
 
 

@@ -2,8 +2,9 @@
 {
     public static class UploadFilesPath
     {
-        public const string Uploads = nameof(Uploads);
+        public const string Uploads = "/Uploads";
         public const string Products = nameof(Products);
         public const string AboutUs = nameof(AboutUs);
+        public const string Apps = nameof(Apps);
     }
 }

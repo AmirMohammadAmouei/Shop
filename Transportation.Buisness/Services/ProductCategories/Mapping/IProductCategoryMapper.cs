@@ -1,4 +1,4 @@
-﻿using Riok.Mapperly.Abstractions;
+﻿    using Riok.Mapperly.Abstractions;
 using Transportation.Buisness._0.Common.Paging;
 using Transportation.Buisness.Services.ProductCategories.Dto;
 using Transportation.Entities.Entities;
