@@ -2,7 +2,7 @@
 
 namespace Transportation.Buisness._0.Common.FileManager
 {
-    public interface IUploadFileService
+    public interface IFileService
     {
         Task<UploadFileResult> UploadAsync(IFormFile file, string folder);
         Task<List<UploadFileResult>> UploadManyAsync(List<IFormFile> files, string folder);

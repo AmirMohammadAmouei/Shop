@@ -13,7 +13,6 @@ namespace Transportation.Buisness.Services.MobileApps.Dtos
         public string Version { get; set; }
         [Required(ErrorMessage = "نوع اپ موبایل الزامی است")]
         public string Platform { get; set; }
-        [Required(ErrorMessage = "اپ موبایل آپلود نشده است")]
         public IFormFile File { get; set; }
         public IFormFile Icon { get; set; }
     }

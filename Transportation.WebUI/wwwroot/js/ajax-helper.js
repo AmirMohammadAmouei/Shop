@@ -8,7 +8,7 @@
  *   AppAjax.get(url).then(res => ...);
  */
 const AppAjax = (function () {
-
+    debugger;
     // خواندن توکن CSRF از فرم مخفی موجود در Layout
     function getAntiForgeryToken() {
         const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');

@@ -16,13 +16,13 @@ namespace Transportation.Buisness.Services.Products
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepository<Product> _productRepository;
         private readonly IProductMapper _mapper;
-        private readonly IUploadFileService _uploadFileService;
+        private readonly IFileService _uploadFileService;
 
         public ProductService(
             IUnitOfWork unitOfWork,
             IRepository<Product> productRepository,
             IProductMapper mapper,
-            IUploadFileService uploadFileService)
+            IFileService uploadFileService)
         {
             _unitOfWork = unitOfWork;
             _productRepository = productRepository;

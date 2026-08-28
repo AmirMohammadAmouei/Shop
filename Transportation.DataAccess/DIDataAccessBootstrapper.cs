@@ -28,7 +28,7 @@ namespace Transportation.DataAccess
             services.AddIdentityConfig();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddScoped<IUploadFileService, UploadFileService>();
+            services.AddScoped<IFileService, FileService>();
             services.Configure<AdminSeedSettings>(configuration.GetSection(AdminSeedSettings.SectionName));
 
             return services;

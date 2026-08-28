@@ -16,13 +16,13 @@ namespace Transportation.WebUI.Areas.Admin.Controllers
     {
         private readonly ProductService _productService;
         private readonly ProductCategoryService _categoryService;
-        private readonly IUploadFileService _uploadFileService;
+        private readonly IFileService _uploadFileService;
         private readonly IWebHostEnvironment _env;
 
         public ProductController(
             ProductService productService,
             ProductCategoryService categoryService,
-            IUploadFileService uploadFileService,
+            IFileService uploadFileService,
             IWebHostEnvironment env)
         {
             _productService = productService;

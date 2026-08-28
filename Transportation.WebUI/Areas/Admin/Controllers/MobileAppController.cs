@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Transportation.Buisness._0.Common;
+using Transportation.Buisness._0.Common.FileManager;
 using Transportation.Buisness._0.Common.Paging;
 using Transportation.Buisness.Services.MobileApps;
 using Transportation.Buisness.Services.MobileApps.Dtos;
@@ -9,16 +12,18 @@ namespace Transportation.WebUI.Areas.Admin.Controllers
     public class MobileAppController : Controller
     {
         private readonly MobileAppService _mobileAppService;
+        private readonly IFileService _fileService;
 
-        public MobileAppController(MobileAppService mobileAppService)
+        public MobileAppController(MobileAppService mobileAppService, IFileService fileService)
         {
             _mobileAppService = mobileAppService;
+            _fileService = fileService;
         }
 
         public async Task<IActionResult> Index(MobileAppListRequestDto request)
         {
             var response = await _mobileAppService.List(request);
-
+            
             var apps = response.IsSucceeded ? response.Data : new SPFOutPutDto<MobileAppListResponseDto>();
 
             return View(apps);
@@ -36,13 +41,18 @@ namespace Transportation.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm] CreateMobileAppDto request)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([FromForm] CreateMobileAppDto request, IFormFile File, IFormFile Icon)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState.Values
-                  .SelectMany(v => v.Errors)
-                  .Select(e => e.ErrorMessage)
-                  .FirstOrDefault());
+
+            if (File == null || File?.Length == 0)
+                return BadRequest("فایل ارسالی نامعتبر است");
+
+            if (Icon == null || Icon?.Length == 0)
+                return BadRequest("آیکون بارگزاری شده نامعتبر است");
+
+            request.File = File;
+            request.Icon = Icon;
 
             var response = await _mobileAppService.Create(request);
 
@@ -52,9 +62,12 @@ namespace Transportation.WebUI.Areas.Admin.Controllers
             return Ok(response.Data);
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> Update([FromForm] UpdateMobileAppDto request)
+        public async Task<IActionResult> Update([FromForm] UpdateMobileAppDto request, IFormFile file, IFormFile icon)
         {
+            request.File = file;
+            request.Icon = icon;
             var response = await _mobileAppService.UpdateMobileApp(request);
 
             if (!response.IsSucceeded)
@@ -62,5 +75,29 @@ namespace Transportation.WebUI.Areas.Admin.Controllers
 
             return Ok();
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Download(long id)
+        {
+            var pathResult = await _mobileAppService.GetFilePath(id);
+            if (!pathResult.IsSucceeded) return NotFound();
+
+            var download = _fileService.Download(pathResult.Data);
+            if (!download.IsSucceeded) return NotFound();
+
+            return File(download.Bytes, download.ContentType, download.FileName);
+        }
+
+        public async Task<IActionResult> Delete(long id)
+        {
+            var response = await _mobileAppService.Delete(id);
+
+            if (response.IsSucceeded)
+                return Ok();
+
+            return BadRequest(response.Message);
+        }
+
     }
 }

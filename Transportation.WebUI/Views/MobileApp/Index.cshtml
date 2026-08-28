@@ -1,0 +1,429 @@
+﻿@using Transportation.Buisness.Services.MobileApps.Dtos
+@using Transportation.Buisness._0.Common.Paging
+@model SPFOutPutDto<MobileAppListResponseDto>
+
+@{
+    ViewData["Title"] = "محصولات | راهنگار";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .contact-price {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(90deg, var(--blue), var(--blue-light));
+        color: #fff;
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 7px 14px;
+        border-radius: 100px;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+        .contact-price:hover {
+            filter: brightness(1.1);
+            color: #fff;
+        }
+
+    .app-card {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 22px 24px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        flex: 1;
+        min-width: 260px;
+        max-width: 380px;
+        transition: .2s;
+    }
+
+        .app-card:hover {
+            box-shadow: 0 8px 24px rgba(10,20,60,.09);
+            border-color: var(--blue-light);
+        }
+
+    .app-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 14px;
+        background: #fff;
+        border: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,.08);
+    }
+
+    .app-download {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(90deg, var(--blue), var(--blue-light));
+        color: #fff;
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 8px 16px;
+        border-radius: 100px;
+        text-decoration: none;
+        transition: .2s;
+        margin-top: 10px;
+    }
+
+        .app-download:hover {
+            filter: brightness(1.08);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+</style>
+
+<section class="banner">
+    <div class="wrap">
+        <div class="crumb">
+            <a asp-controller="Home" asp-action="Index">خانه</a> / <span>برنامه ها</span>
+        </div>
+        <h1>محصولات راهنگار</h1>
+        <p>مجموعه‌ای کامل از سخت‌افزارها و نرم‌افزارهای ردیابی و مدیریت هوشمند ناوگان</p>
+    </div>
+</section>
+@if (Model.Items.Any())
+{
+    <section class="shop" style="border-top:1px solid var(--line);">
+        <div class="wrap">
+
+            <aside>
+                @* <div class="side-box">
+                    <h4>دانلود اپلیکیشن</h4>
+                    <p class="section-sub mb-3">
+                        برای دسترسی آسان‌تر اپلیکیشن را روی دستگاه خود نصب کنید
+                    </p>
+                    <ul class="cat-list">
+                        @foreach (var app in Model.Items)
+                        {
+                            var (icon, color) = app.Platform switch
+                            {
+                                "Android" => ("bi-android2", "#3ddc84"),
+                                "iOS" => ("bi-apple", "#555555"),
+                                "Windows" => ("bi-windows", "#0078d4"),
+                                _ => ("bi-phone", "var(--blue)")
+                            };
+                            <li>
+                                <a href="@Url.Action("Download", "MobileApp", new { id = app.Id })">
+                                    <i class="bi @icon ms-1" style="color:@color;"></i>
+                                    @app.Title
+                                    <span class="count">@app.Platform</span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div> *@
+
+                <div class="promo-box">
+                    <span class="ic">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+                            <path d="M21 19a2 2 0 0 1-2 2h-1v-7h3Z" />
+                            <path d="M3 19a2 2 0 0 0 2 2h1v-7H3Z" />
+                        </svg>
+                    </span>
+                    <h4>در انتخاب محصول مطمئن نیستید؟</h4>
+                    <p>کارشناسان ما رایگان راهنمایی‌تان می‌کنند</p>
+                    <a href="#" class="pill pill-solid pill-sm"
+                       style="background:#fff; color:var(--blue); width:100%; display:flex;">
+                        مشاوره رایگان
+                    </a>
+                </div>
+            </aside>
+
+            <div>
+                @* <div class="sec-head" style="text-align:right; margin-bottom:24px;">
+                    <span class="eyebrow">دانلود اپلیکیشن</span>
+                    <h2>اپلیکیشن‌های راهنگار</h2>
+                </div> *@
+
+                <div class="product-grid">
+                    @foreach (var app in Model.Items)
+                    {
+                        var (icon, color) = app.Platform switch
+                        {
+                            "Android" => ("bi-android2", "#3ddc84"),
+                            "iOS" => ("bi-apple", "#555555"),
+                            "Windows" => ("bi-windows", "#0078d4"),
+                            _ => ("bi-phone", "var(--blue)")
+                        };
+
+                        <div class="p-card">
+                            <div class="thumb">
+                                @if (!string.IsNullOrEmpty(app.IconPath))
+                                {
+                                    <img src="@Url.Action("GetIcon", "MobileApp", new { id = app.Id })"
+                                         style="width:88px;height:88px;object-fit:contain;">
+                                }
+                                else
+                                {
+                                    <div style="width:88px;height:88px;display:flex;
+                                        align-items:center;justify-content:center;">
+                                        <i class="bi @icon" style="font-size:3rem;color:@color;"></i>
+                                    </div>
+                                }
+                            </div>
+                            <div class="body">
+                                <span class="cat-lbl">
+                                    <i class="bi @icon ms-1" style="color:@color;"></i>
+                                    @app.Platform
+                                </span>
+                                <h3>@app.Title</h3>
+                                <p>@app.Description</p>
+                                <div class="foot-row">
+                                    <span class="section-sub">نسخه @app.Version</span>
+                                    <a href="@Url.Action("Download", "MobileApp", new { id = app.Id })"
+                                       class="pill pill-solid pill-sm">
+                                        <i class="bi bi-download ms-1"></i>
+                                        دانلود
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </section>
+}
+@* @if (Model.Items.Any())
+{
+    <section style="background:#fff; padding:48px 0; border-top:1px solid var(--line);">
+        <div class="wrap">
+            <div class="sec-head" style="text-align:center; margin-bottom:32px;">
+                <span class="eyebrow">دانلود اپلیکیشن</span>
+                <h2>اپلیکیشن راهنگار</h2>
+                <p style="color:var(--gray); font-size:14.5px;">
+                    برای دسترسی آسان‌تر اپلیکیشن را روی دستگاه خود نصب کنید
+                </p>
+            </div>
+
+            <div style="display:flex; flex-wrap:wrap; gap:16px; justify-content:center;">
+                @foreach (var app in Model.Items)
+                {
+                    var (icon, color) = app.Platform switch
+                    {
+                        "Android" => ("bi-android2", "#3ddc84"),
+                        "iOS" => ("bi-apple", "#555555"),
+                        "Windows" => ("bi-windows", "#0078d4"),
+                        _ => ("bi-phone", "var(--blue)")
+                    };
+
+                    <div class="app-card">
+                        <div class="app-icon">
+                            @if (!string.IsNullOrEmpty(app.IconPath))
+                            {
+                                <img src="@Url.Action("GetIcon", "MobileApp", new { id = app.Id })"
+                                     style="width:100%;height:100%;object-fit:cover;">
+                            }
+                            else
+                            {
+                                <i class="bi @icon" style="font-size:1.8rem; color:@color;"></i>
+                            }
+                        </div>
+                        <div>
+                            <div style="font-weight:800; font-size:.95rem; color:var(--navy);">
+                                @app.Title
+                            </div>
+                            <div style="font-size:.78rem; color:var(--gray); margin-bottom:10px;">
+                                <i class="bi @icon ms-1" style="color:@color;"></i>
+                                @app.Platform
+                            </div>
+                            <a href="@Url.Action("Download", "MobileApp", new { id = app.Id })"
+                               class="pill pill-solid pill-sm" style="margin-top:10px;">
+                                <i class="bi bi-download ms-1"></i>
+                                دانلود
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+ *@
+
+@section Scripts {
+    <script>
+        let currentCatId = 0;
+        let currentPage = 1;
+        const pageSize = 9;
+        let searchTimer = null;
+
+        function filterCategory(catId, el) {
+            event.preventDefault();
+            currentCatId = catId;
+            currentPage = 1;
+            document.querySelectorAll('.cat-list a').forEach(a => a.classList.remove('active'));
+            el.classList.add('active');
+            loadProducts();
+        }
+
+        function onSearch(val) {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => { currentPage = 1; loadProducts(); }, 400);
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            loadProducts();
+            window.scrollTo({
+                top: document.getElementById('productGrid').offsetTop - 120,
+                behavior: 'smooth'
+            });
+        }
+
+        async function loadProducts() {
+            document.getElementById('productGrid').innerHTML = `
+                            <div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--gray);">
+                                <i class="bi bi-arrow-repeat"></i> در حال بارگذاری...
+                            </div>`;
+            document.getElementById('pagination').innerHTML = '';
+            document.getElementById('resultCount').innerHTML = '...';
+
+            const search = document.getElementById('searchInput').value ?? '';
+            const url = `/Product/GetProductsByCategoryId?categoryId=${currentCatId}`
+                + `&PageNumber=${currentPage}&PageSize=${pageSize}`
+                + `&SearchTerm=${encodeURIComponent(search)}`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (!data.isSucceded || !data.items || data.items.length === 0) {
+                    document.getElementById('productGrid').innerHTML = `
+                                    <div style="grid-column:1/-1; text-align:center; padding:60px; color:var(--gray);">
+                                        <i class="bi bi-box-seam" style="font-size:2.4rem; opacity:.4;
+                                           display:block; margin:0 auto 12px;"></i>
+                                        <p>محصولی یافت نشد</p>
+                                    </div>`;
+                    document.getElementById('resultCount').innerHTML = 'محصولی یافت نشد';
+                    return;
+                }
+
+                const from = (currentPage - 1) * pageSize + 1;
+                const to = Math.min(currentPage * pageSize, data.totalCount);
+                document.getElementById('resultCount').innerHTML =
+                    `نمایش <b>${toFa(from)} تا ${toFa(to)}</b> از <b>${toFa(data.totalCount)}</b> محصول`;
+
+                document.getElementById('productGrid').innerHTML = data.items.map(p => `
+                                <div class="p-card">
+                                    <div class="thumb">
+                                        ${p.images && p.images.length
+                        ? `<img src="${p.images[0].path}" alt="${p.name}"
+                                                   style="width:88px;height:88px;object-fit:contain;">`
+                        : `<svg viewBox="0 0 100 100">
+                                                   <rect x="20" y="20" width="60" height="60" rx="8" fill="#e3e9f7"/>
+                                                   <path d="M35 50h30M50 35v30" stroke="#3f8bff"
+                                                         stroke-width="3" stroke-linecap="round"/>
+                                               </svg>`
+                    }
+                                    </div>
+                                    <div class="body">
+                                        <span class="cat-lbl">${p.categoryName ?? ''}</span>
+                                        <h3>${p.name ?? ''}</h3>
+                                        <p>${p.description ?? ''}</p>
+                                                 <div class="foot-row">
+                    <button onclick="downloadApp(${p.id})"
+                            class="pill pill-solid pill-sm" style="width:100%;justify-content:center;border:none;cursor:pointer;">
+                        <i class="bi bi-download"></i>
+                        دانلود
+                    </button>
+                </div>
+                                    </div>
+                                </div>
+                            `).join('');
+
+                renderPagination(data.totalPages, data.currentPage);
+
+            } catch (err) {
+                document.getElementById('productGrid').innerHTML = `
+                                <div style="grid-column:1/-1; text-align:center; padding:40px; color:#b91c1c;">
+                                    خطا در بارگذاری محصولات
+                                </div>`;
+            }
+        }
+
+        async function downloadApp(id) {
+            debugger;
+            try {
+                const res = await fetch(`/MobileApp/Download?id=${id}`);
+
+                if (!res.ok) {
+                    toastr.error('خطا در دانلود فایل');
+                    return;
+                }
+
+                const blob = await res.blob();
+
+                // نام فایل از header
+                const disposition = res.headers.get('Content-Disposition');
+                let fileName = 'rahnegar-app';
+                if (disposition) {
+                    const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                    if (match) fileName = match[1].replace(/['"]/g, '');
+                }
+
+                // دانلود بدون تغییر صفحه
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+
+                toastr.success('دانلود شروع شد');
+
+            } catch {
+                toastr.error('خطا در ارتباط با سرور');
+            }
+        }
+
+        function renderPagination(totalPages, page) {
+            const pg = document.getElementById('pagination');
+            if (totalPages <= 1) { pg.innerHTML = ''; return; }
+
+            let html = `<a href="#"
+                            onclick="event.preventDefault();${page > 1 ? `goToPage(${page - 1})` : ''}"
+                            ${page === 1 ? 'style="opacity:.4;pointer-events:none;"' : ''}>‹</a>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === page) {
+                    html += `<a href="#" class="active"
+                                            onclick="event.preventDefault();">${toFa(i)}</a>`;
+                } else if (i === 1 || i === totalPages || Math.abs(i - page) <= 1) {
+                    html += `<a href="#"
+                                            onclick="event.preventDefault();goToPage(${i})">${toFa(i)}</a>`;
+                } else if (Math.abs(i - page) === 2) {
+                    html += `<span class="dots">…</span>`;
+                }
+            }
+
+            html += `<a href="#"
+                            onclick="event.preventDefault();${page < totalPages ? `goToPage(${page + 1})` : ''}"
+                            ${page === totalPages ? 'style="opacity:.4;pointer-events:none;"' : ''}>›</a>`;
+
+            pg.innerHTML = html;
+        }
+
+        function toFa(n) {
+            return n.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            filterCategory(0, document.querySelector('.cat-list a'));
+        });
+    </script>
+}

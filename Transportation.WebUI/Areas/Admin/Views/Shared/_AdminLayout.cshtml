@@ -15,7 +15,7 @@
     </style>
 </head>
 <body>
-
+    @Html.AntiForgeryToken()
     <div id="sidebar">
         <div class="brand d-flex align-items-center gap-2">
             <div class="brand-mark route-pattern">
@@ -27,11 +27,24 @@
             </div>
         </div>
         <nav>
-            <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="nav-link" data-tab="dashboard"><i class="bi bi-grid-1x2-fill"></i><span>داشبورد</span></a>
-            <a asp-area="Admin" asp-controller="ProductCategory" asp-action="Index" class="nav-link" data-tab="categories"><i class="bi bi-tags-fill"></i><span>دسته‌بندی محصولات</span></a>
-            <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="nav-link" data-tab="products"><i class="bi bi-box-seam-fill"></i><span>محصولات</span></a>
-            <a asp-area="Admin" asp-controller="AboutUs" asp-action="Index" class="nav-link" data-tab="company"><i class="bi bi-building-fill"></i><span>معرفی شرکت</span></a>
-            <a asp-area="Admin" asp-controller="MobileApp" asp-action="Index" class="nav-link" data-tab="company"><i class="bi bi-building-fill"></i><span>اپ موبایل</span></a>
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="nav-link">
+                <i class="bi bi-house-fill"></i><span>صفحه اصلی</span>
+            </a>
+            <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="nav-link">
+                <i class="bi bi-grid-1x2-fill"></i><span>داشبورد</span>
+            </a>
+            <a asp-area="Admin" asp-controller="ProductCategory" asp-action="Index" class="nav-link">
+                <i class="bi bi-tags-fill"></i><span>دسته‌بندی محصولات</span>
+            </a>
+            <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="nav-link">   
+                <i class="bi bi-box-seam-fill"></i><span>محصولات</span>
+            </a>
+            <a asp-area="Admin" asp-controller="AboutUs" asp-action="Index" class="nav-link">
+                <i class="bi bi-building-fill"></i><span>معرفی شرکت</span>
+            </a>
+            <a asp-area="Admin" asp-controller="MobileApp" asp-action="Index" class="nav-link">
+                <i class="bi bi-phone-fill"></i><span>اپ موبایل</span>
+            </a>
         </nav>
         <div class="side-footer">داده‌ها به‌صورت خودکار ذخیره می‌شوند</div>
     </div>

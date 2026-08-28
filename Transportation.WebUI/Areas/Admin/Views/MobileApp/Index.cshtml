@@ -43,7 +43,7 @@
                             <td>
                                 @if (!string.IsNullOrEmpty(app.IconPath))
                                 {
-                                    <img src="@Url.Action("GetIcon", new { id = app.Id })"
+                                    <img src="@app.IconPath"
                                          style="width:40px;height:40px;border-radius:10px;object-fit:cover;">
                                 }
                                 else
@@ -91,7 +91,7 @@
                                         data-isactive="@app.IsActive.ToString().ToLower()">
                                     <i class="bi bi-pencil"></i>
                                 </button>
-                                <a href="@Url.Action("Download", new { id = app.Id })"
+                                <a href="@Url.Action("Download", "MobileApp", new { area = "Admin", id = app.Id })"
                                    class="btn btn-sm btn-outline-navy" title="دانلود">
                                     <i class="bi bi-download"></i>
                                 </a>
@@ -202,7 +202,6 @@
             }
 
             function open(data) {
-                debugger;
                 $('#editId').val(data?.id || '');
                 $('#appTitle').val(data?.title || '');
                 $('#appDescription').val(data?.description || '');
@@ -237,13 +236,16 @@
             reader.readAsDataURL(file);
         });
 
+ 
+
         /* ===== ذخیره ===== */
         function saveApp() {
+            debugger;
             const id = $('#editId').val();
             const isEdit = !!id;
             const title = $('#appTitle').val().trim();
             const file = document.getElementById('appFile').files[0];
-
+            console.log('id:', id, typeof id, 'isEdit:', isEdit);
             if (!title) { toastr.warning('نام اپلیکیشن الزامی است'); return; }
             if (!isEdit && !file) { toastr.warning('فایل اپلیکیشن الزامی است'); return; }
             if (!$('#appVersion').val().trim()) { toastr.warning('نسخه الزامی است'); return; }
@@ -257,6 +259,8 @@
             formData.append('Platform', $('#appPlatform').val());
             formData.append('IsActive', $('#appIsActive').is(':checked'));
 
+            console.log('token:', $('input[name="__RequestVerificationToken"]').val());
+           
             if (file) formData.append('File', file);
             const icon = document.getElementById('appIcon').files[0];
             if (icon) formData.append('Icon', icon);
@@ -264,6 +268,7 @@
             $('#saveBtn').prop('disabled', true)
                 .html('<span class="spinner-border spinner-border-sm ms-1"></span> در حال ذخیره...');
 
+                debugger;
             $.ajax({
                 url: isEdit ? AppUrls.update : AppUrls.create,
                 method: 'POST',

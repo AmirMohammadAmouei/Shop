@@ -1,4 +1,5 @@
-﻿using Transportation.Buisness._0.Common;
+﻿using Microsoft.EntityFrameworkCore;
+using Transportation.Buisness._0.Common;
 using Transportation.Buisness._0.Common.Constants;
 using Transportation.Buisness._0.Common.FileManager;
 using Transportation.Buisness._0.Common.Paging;
@@ -14,9 +15,9 @@ namespace Transportation.Buisness.Services.MobileApps
         private readonly IRepository<MobileApp> _mobileAppRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMobileAppMapper _mapper;
-        private readonly IUploadFileService _fileService;
+        private readonly IFileService _fileService;
         public MobileAppService(IRepository<MobileApp> mobileAppRepository,
-            IUnitOfWork unitOfWork, IMobileAppMapper mapper, IUploadFileService fileService)
+            IUnitOfWork unitOfWork, IMobileAppMapper mapper, IFileService fileService)
         {
             _mobileAppRepository = mobileAppRepository;
             _unitOfWork = unitOfWork;
@@ -65,9 +66,7 @@ namespace Transportation.Buisness.Services.MobileApps
 
         public async Task<Result<long>> Create(CreateMobileAppDto request)
         {
-            if (request == null)
-                return Result<long>.Failed("داده های ارسالی نامعتبر است");
-
+            
             if (await _mobileAppRepository.AnyAsync(x => !x.IsDeleted && x.Title == request.Title && x.Version == request.Version))
                 return Result<long>.Failed("برنامه ایی با نام و ورژن وارد شده قبلا ثبت شده است");
 
@@ -75,10 +74,10 @@ namespace Transportation.Buisness.Services.MobileApps
 
             if (request.Icon != null && request.Icon.Length > 0)
             {
-                var iconPath = await _fileService.UploadAsync(request.Icon, UploadFilesPath.Apps);
+                var iconPath = await _fileService.UploadAsync(request.Icon, UploadFilesPath.AppIcons);
 
                 if (!iconPath.IsSucceeded)
-                    return Result<long>.Failed("خطا در بارگزاری آیکون اپ");
+                    return Result<long>.Failed(iconPath.Message);
 
                 mobileApp.IconPath = iconPath.Path;
             }
@@ -88,7 +87,7 @@ namespace Transportation.Buisness.Services.MobileApps
                 var appPath = await _fileService.UploadAsync(request.File, UploadFilesPath.Apps);
 
                 if (!appPath.IsSucceeded)
-                    return Result<long>.Failed("خطا در بارگزاری اپ");
+                    return Result<long>.Failed(appPath.Message);
 
                 mobileApp.FilePath = appPath.Path;
                 mobileApp.FileSize = appPath.FileSize;
@@ -116,7 +115,7 @@ namespace Transportation.Buisness.Services.MobileApps
                 var iconPath = await _fileService.UploadAsync(request.Icon, UploadFilesPath.Apps);
 
                 if (!iconPath.IsSucceeded)
-                    return Result<long>.Failed("خطا در بارگزاری آیکون اپ");
+                    return Result<long>.Failed(iconPath.Message);
 
                 mobile.IconPath = iconPath.Path;
             }
@@ -126,8 +125,8 @@ namespace Transportation.Buisness.Services.MobileApps
             {
                 var appPath = await _fileService.UploadAsync(request.File, UploadFilesPath.Apps);
 
-                if (appPath.IsSucceeded)
-                    return Result<long>.Failed("خطا در بارگزاری اپ");
+                if (!appPath.IsSucceeded)
+                    return Result<long>.Failed(appPath.Message);
 
                 mobile.FilePath = appPath.Path;
                 mobile.FileSize = appPath.FileSize;
@@ -140,5 +139,55 @@ namespace Transportation.Buisness.Services.MobileApps
             return Result.Success();
         }
 
+        public async Task<Result<string>> GetFilePath(long id)
+        {
+            if (id == 0)
+                return Result<string>.Failed("شناسه ارسالی کالا نامعتبر است");
+
+            var file = await _mobileAppRepository.GetQuery().Where(x => !x.IsDeleted && x.Id == id).FirstOrDefaultAsync();
+
+            if (file == null)
+                return Result<string>.Failed("کالایی با شناسه ارسالی یافت نشد");
+
+            if (file.FilePath == null)
+                return Result<string>.Failed("مسیر ذخیره سازی برای این کالا یافت نشد");
+
+
+            return Result<string>.Success(file.FilePath);
+        }
+
+        public async Task<Result<string>> GetIconPath(long id)
+        {
+            if (id == 0)
+                return Result<string>.Failed("شناسه ارسالی کالا نامعتبر است");
+
+            var file = await _mobileAppRepository.GetQuery().Where(x => !x.IsDeleted && x.Id == id).FirstOrDefaultAsync();
+
+            if (file == null)
+                return Result<string>.Failed("آیکون کالا با شناسه ارسالی یافت نشد");
+
+            if (file.FilePath == null)
+                return Result<string>.Failed("مسیر ذخیره سازی برای این کالا یافت نشد");
+
+
+            return Result<string>.Success(file.IconPath);
+        }
+
+        public async Task<Result> Delete(long id)
+        {
+            if (id == 0)
+                return Result.Failed("شناسه ارسالی نامعتبر است");
+
+            var app = await _mobileAppRepository.GetByIdAsync(x => !x.IsDeleted && x.Id == id);
+
+            if (app == null)
+                return Result.Failed("اپ مورد نظر یافت نشد یا قبلا حذف شده است.");
+
+            app.IsDeleted = true;
+
+            await _unitOfWork.CommitAsync();
+
+            return Result.Success();
+        }
     }
 }

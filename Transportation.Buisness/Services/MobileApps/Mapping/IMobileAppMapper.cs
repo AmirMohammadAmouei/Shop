@@ -20,8 +20,8 @@ namespace Transportation.Buisness.Services.MobileApps.Mapping
 
         public partial SPFOutPutDto<MobileAppListResponseDto> ToDtoList(SPFOutPutDto<MobileApp> entity);
 
-        [MapperIgnoreSource(nameof(CreateMobileAppDto.File))]
-        [MapperIgnoreSource(nameof(CreateMobileAppDto.Icon))]
+        //[MapperIgnoreSource(nameof(CreateMobileAppDto.File))]
+        //[MapperIgnoreSource(nameof(CreateMobileAppDto.Icon))]
         public partial MobileApp ToEntity(CreateMobileAppDto request);
 
         [MapperIgnoreSource(nameof(UpdateMobileAppDto.Id))]

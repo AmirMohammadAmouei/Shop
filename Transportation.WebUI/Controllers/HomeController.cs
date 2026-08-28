@@ -24,10 +24,10 @@ namespace Transportation.WebUI.Controllers
             _productService = productService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(ProductCategoryListRequestDto request)
         {
             var aboutUsResult = await _aboutUsService.GetDetails();
-            var categoriesResult = await _productCategoryService.List(new ProductCategoryListRequestDto());
+            var categoriesResult = await _productCategoryService.List(request);
 
             var model = new HomeViewModel
             {
