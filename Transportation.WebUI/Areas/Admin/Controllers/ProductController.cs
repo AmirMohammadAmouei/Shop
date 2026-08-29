@@ -60,6 +60,17 @@ namespace Transportation.WebUI.Areas.Admin.Controllers
             return Ok(result.Data);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetDetails(long id)
+        {
+            var response = await _productService.GetProductBy(id);
+
+            if (response.IsSucceeded)
+                return Ok(response.Data);
+
+            return BadRequest(response.Message);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Update([FromForm] UpdateProductRequestDto request)
         {

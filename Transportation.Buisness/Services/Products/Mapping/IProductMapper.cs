@@ -9,7 +9,7 @@ namespace Transportation.Buisness.Services.Products.Mapping
     {
         Product ToEntity(CreateProductDto request);
         SPFOutPutDto<ProductListResponseDto> ToDtoList(SPFOutPutDto<Product> source);
-
+        ProductDetailsDto ToDetialsDto(Product product);
         void UpdateEntity(UpdateProductDto request, Product entity);
     }
 
@@ -27,5 +27,11 @@ namespace Transportation.Buisness.Services.Products.Mapping
         [MapperIgnoreSource(nameof(UpdateProductDto.NewImages))]
         [MapperIgnoreSource(nameof(UpdateProductDto.DeletedImageIds))]
         public partial void UpdateEntity(UpdateProductDto request, Product entity);
+
+        [MapProperty(nameof(Product.ProductImages), nameof(ProductDetailsDto.ImagesPath))]
+        [MapProperty("ProductCategory.Name", nameof(ProductDetailsDto.CategoryName))]
+        public partial ProductDetailsDto ToDetialsDto(Product product);
+        private ProductImageResponseDto MapImage(ProductImages image)
+        => new ProductImageResponseDto { Id = image.Id, Path = image.Path };
     }
 }

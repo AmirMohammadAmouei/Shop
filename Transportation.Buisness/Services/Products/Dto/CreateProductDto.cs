@@ -4,7 +4,6 @@ using Transportation.Buisness._0.Common.Paging;
 
 namespace Transportation.Buisness.Services.Products.Dto
 {
-    // CreateProductDto.cs — برای Service (بدون IFormFile)
     public class CreateProductDto
     {
         public long ProductCategoryId { get; set; }
@@ -16,7 +15,6 @@ namespace Transportation.Buisness.Services.Products.Dto
     }
 
 
-    // UpdateProductDto.cs — برای Service (بدون IFormFile)
     public class UpdateProductDto
     {
         public long Id { get; set; }
@@ -29,7 +27,6 @@ namespace Transportation.Buisness.Services.Products.Dto
         public List<long> DeletedImageIds { get; set; } = new();
     }
 
-    // UpdateProductRequestDto.cs — برای Controller (با IFormFile)
     public class UpdateProductRequestDto
     {
         [Required]
@@ -66,4 +63,17 @@ namespace Transportation.Buisness.Services.Products.Dto
     public class ProductListRequestDto : SPFInputDto
     {
     }
+
+    public class ProductDetailsDto
+    {
+        public long ProductCategoryId { get; set; }
+        public string Name { get; set; }
+        public string CategoryName { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+        public bool ShowPrice { get; set; }
+        public List<ProductImageResponseDto> ImagesPath { get; set; } = new();
+    }
+
+   
 }

@@ -8,7 +8,6 @@
  *   AppAjax.get(url).then(res => ...);
  */
 const AppAjax = (function () {
-    debugger;
     // خواندن توکن CSRF از فرم مخفی موجود در Layout
     function getAntiForgeryToken() {
         const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
@@ -43,19 +42,19 @@ const AppAjax = (function () {
 
     // درخواست عمومی — پایه‌ی همه‌ی متدهای دیگر
     function request(method, url, data, options) {
-        debugger;
         options = options || {};
         const defaultErrorMessage = options.errorMessage || 'خطایی در ارتباط با سرور رخ داد';
-
         if (options.showLoading !== false) {
             toggleLoading(true, options.loadingTarget);
         }
+
+        const isGet = method === 'GET'
 
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: url,
                 method: method,
-                contentType: 'application/json',
+                contentType: isGet ? false : 'application/json',
                 data: data ? JSON.stringify(data) : null,
                 success: function (response) {
                     resolve(response);
@@ -79,17 +78,17 @@ const AppAjax = (function () {
     }
 
     // نمایش/مخفی کردن Loading روی یک دکمه یا کل صفحه (اختیاری)
-    function toggleLoading(isLoading, targetSelector) { 
+    function toggleLoading(isLoading, targetSelector) {
         if (!targetSelector) return;
 
         const $target = $(targetSelector);
         if (isLoading) {
             $target.data('original-html', $target.html());
             $target.prop('disabled', true)
-                   .html('<span class="spinner-border spinner-border-sm ms-1"></span> در حال پردازش...');
+                .html('<span class="spinner-border spinner-border-sm ms-1"></span> در حال پردازش...');
         } else {
             $target.prop('disabled', false)
-                   .html($target.data('original-html'));
+                .html($target.data('original-html'));
         }
     }
 

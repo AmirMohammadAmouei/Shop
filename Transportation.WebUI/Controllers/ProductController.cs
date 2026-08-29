@@ -55,5 +55,16 @@ namespace Transportation.WebUI.Controllers
             });
 
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDetails(long id)
+        {
+            var response = await _productService.GetProductBy(id);
+
+            if (response.IsSucceeded)
+                return View(response.Data);
+
+            return BadRequest(response.Message);
+        }
     }
 }

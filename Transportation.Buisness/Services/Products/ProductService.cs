@@ -46,6 +46,25 @@ namespace Transportation.Buisness.Services.Products
             return Result<SPFOutPutDto<ProductListResponseDto>>.Success(mapping);
         }
 
+        public async Task<Result<ProductDetailsDto>> GetProductBy(long id)
+        {
+            if (id == 0)
+                return Result<ProductDetailsDto>.Failed("شناسه ارسالی نامعتبر است");
+
+            var product = await _productRepository.GetQuery().Where(x => !x.IsDeleted && x.Id == id)
+                .Include(x => x.ProductCategory).Include(x => x.ProductImages).FirstOrDefaultAsync();
+
+            if (product == null)
+                return Result<ProductDetailsDto>.Failed("کالایی با شناسه ارسالی یافت نشد");
+
+            var result = _mapper.ToDetialsDto(product);
+
+            if (result == null)
+                return Result<ProductDetailsDto>.Failed("خطا در دریافت اطلاعات کالا");
+
+            return Result<ProductDetailsDto>.Success(result);
+        }
+
         public async Task<Result<SPFOutPutDto<ProductListResponseDto>>> GetProductsByCategoryId(long categoryId, ProductListRequestDto request)
         {
             var products = _productRepository.GetQuery().Include(x => x.ProductCategory).Include(x => x.ProductImages)
@@ -60,6 +79,8 @@ namespace Transportation.Buisness.Services.Products
 
             return Result<SPFOutPutDto<ProductListResponseDto>>.Success(mapping);
         }
+
+
 
         public async Task<Result<long>> Create(CreateProductDto request)
         {
