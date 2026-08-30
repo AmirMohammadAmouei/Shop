@@ -100,7 +100,7 @@ namespace Transportation.Buisness.Services.ProductCategories
             if (productCategory == null)
                 return Result.Failed("دسته با شناسه ارسالی یافت نشد");
 
-            if (productCategory.Products.Any())
+            if (productCategory.Products.Any(x => !x.IsDeleted))
                 return Result.Failed("دسته بندی مورد نظر در حال استفاده برای کالا است،مجاز به پاک کردن نمی باشید.");
 
 

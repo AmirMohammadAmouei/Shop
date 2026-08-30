@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>پنل مدیریت محصولات | ناوگان و GPS</title>
+    <link rel="icon" type="image/png" href="~/icon/favicon.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.rtl.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -48,6 +49,9 @@
             </a>
             <a asp-area="Admin" asp-controller="MobileApp" asp-action="Index" class="nav-link">
                 <i class="bi bi-phone-fill"></i><span>اپ موبایل</span>
+            </a>
+            <a asp-area="Admin" asp-controller="Customer" asp-action="Index" class="nav-link">
+                <i class="bi bi-people-fill"></i><span>مشتریان</span>
             </a>
         </nav>
 
@@ -138,7 +142,7 @@
         border-top:1px solid rgba(255,255,255,.07);">
         <div style="color:rgba(255,255,255,.7);font-size:12px;font-weight:500;">
             طراحی و توسعه توسط
-            <span style="color:#fff;font-weight:700;">تیم همتاگستر رایانه بیشاپور</span>
+            <span style="color:#fff;font-weight:700;">تیم برنامه نویسان</span>
         </div>
         <div style="display:flex;gap:12px;">
             <a href="tel:09178237255"

@@ -103,7 +103,8 @@
                 <!-- Thumbnails -->
                 @if (Model.ImagesPath.Count > 1)
                 {
-                    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+                    <div style="display:flex;gap:10px;margin-top:12px;
+                        flex-wrap:wrap;justify-content:center;">
                         @for (int i = 0; i < Model.ImagesPath.Count; i++)
                         {
                             <div onclick="goToSlide(@i)" id="thumb-@i"
@@ -155,7 +156,7 @@
 
                 @if (!string.IsNullOrEmpty(Model.Description))
                 {
-                    <div style="color:var(--gray);font-size:14px;line-height:2;
+                    <div style="color:var(--ink);font-size:14px;line-height:2;
                         margin-bottom:28px;padding:16px;background:var(--paper);
                         border-radius:12px;border:1px solid var(--line);">
                         @Html.Raw(Model.Description)
@@ -175,7 +176,7 @@
                     </a>
                 </div> *@
 
-                <div style="padding:18px;background:var(--paper);
+                @* <div style="padding:18px;background:var(--paper);
                     border-radius:14px;border:1px solid var(--line);">
                     <div style="display:flex;align-items:center;gap:10px;
                         padding-bottom:12px;border-bottom:1px solid var(--line);
@@ -193,7 +194,7 @@
                         <i class="bi bi-headset" style="color:var(--blue);"></i>
                         <span style="font-size:13px;font-weight:600;color:var(--navy);">پشتیبانی ۲۴ ساعته</span>
                     </div>
-                </div>
+                </div> *@
             </div>
 
         </div>

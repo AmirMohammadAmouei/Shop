@@ -1,0 +1,341 @@
+﻿@using Transportation.Buisness.Services.Customers.Dtos
+@using Transportation.Buisness._0.Common.Paging
+@model SPFOutPutDto<CustomerListResponseDto>
+
+@{
+    ViewData["Title"] = "مشتریان";
+}
+
+<div id="main">
+    <div class="topbar">
+        <div>
+            <h1>مشتریان</h1>
+            <p>مدیریت مشتریان</p>
+        </div>
+        <button class="btn btn-primary-navy" id="btnAddCustomer">
+            <i class="bi bi-plus-lg ms-1"></i> مشتری جدید
+        </button>
+    </div>
+
+    <div class="p-4">
+        <table class="table table-bordered table-hover align-middle" id="categoryList">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>نام مشتری</th>
+                    <th>لوگو</th>
+                    <th class="text-center" style="width: 140px;">عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Items.Any())
+                {
+
+                    int row = 1;
+                    @foreach (var customer in Model.Items)
+                    {
+                        <tr id="cat-@customer.Id">
+                            <td>@(row++)</td>
+                            <td class="fw-semibold">@customer.Name</td>
+                            <td class="fw-semibold">
+                                <img src="@customer.LogoPath"
+                                     style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid #eee;" />
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-navy js-edit-customer"
+                                        data-id="@customer.Id"
+                                        data-name="@customer.Name"
+                                        data-logo="@customer.LogoPath">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-navy text-danger js-delete-category"
+                                        data-id="@customer.Id">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr id="emptyState">
+                        <td colspan="4" class="text-center text-muted py-4">
+                            <i class="bi bi-tags fs-4 d-block mb-2"></i>
+                            مشتری ایی ثبت نشده
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="customerModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px;border:none;">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="modalTitle">مشتری جدید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editId" name="id">
+
+                <div class="mb-3">
+                    <label class="form-label">نام مشتری</label>
+                    <input type="text" class="form-control" id="catName" placeholder="مثلاً: ردیاب GPS خودرو">
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label d-block">لوگو</label>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="position-relative" style="width:80px;height:80px;">
+                            <img id="logoPreview"
+                                 src="/images/placeholder-logo.png"
+                                 style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #ddd;" />
+                            <button type="button" id="btnRemoveLogo"
+                                    class="btn btn-sm btn-danger position-absolute top-0 end-0 d-none"
+                                    style="padding:2px 6px;transform:translate(30%,-30%);border-radius:50%;">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <input type="file" id="logoInput" accept="image/*" hidden>
+                            <button type="button" class="btn btn-sm btn-outline-navy" id="btnChooseLogo">
+                                انتخاب تصویر
+                            </button>
+                            @* <div class="form-text mb-0">اختیاری — در ویرایش، اگه انتخاب نکنی همون لوگوی قبلی می‌مونه</div> *@
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-navy" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-primary-navy" id="saveBtn">ذخیره</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        /* ========================================================
+           بخش ۱: تنظیمات و مسیرها
+           ======================================================== */
+        const CustomerUrls = {
+            create: '@Url.Action("Create")',
+            update: '@Url.Action("Update")',
+            delete: '@Url.Action("Delete")',
+             getDetails: '@Url.Action("GetDetails")'
+        };
+
+        const DEFAULT_LOGO = '/images/placeholder-logo.png';
+
+        /* ========================================================
+           بخش ۲: منطق مدیریت Modal (باز کردن / پر کردن فرم / لوگو)
+           ======================================================== */
+      const CustomerModal = (function () {
+    let instance = null;
+    let selectedLogoFile = null;
+    let currentLogoPath = null; // مسیر لوگوی فعلی
+
+    function get() {
+        if (!instance)
+            instance = new bootstrap.Modal(document.getElementById('customerModal'));
+        return instance;
+    }
+
+    function open(id, name, logoPath) {
+        $('#editId').val(id || '');
+        $('#catName').val(name || '');
+        $('#modalTitle').text(id ? 'ویرایش مشتری' : 'مشتری جدید');
+
+        selectedLogoFile = null;
+        currentLogoPath = logoPath || null; // ذخیره مسیر فعلی
+        $('#logoInput').val('');
+        $('#logoPreview').attr('src', logoPath || DEFAULT_LOGO);
+        $('#btnRemoveLogo').toggleClass('d-none', !logoPath);
+
+        get().show();
+    }
+
+    function close() { get().hide(); }
+    function setLogoFile(file) { selectedLogoFile = file; }
+    function getLogoFile() { return selectedLogoFile; }
+    function getCurrentLogoPath() { return currentLogoPath; }
+
+    return { open, close, setLogoFile, getLogoFile, getCurrentLogoPath };
+})();
+
+        /* ========================================================
+           بخش ۳: انتخاب/پیش‌نمایش/حذف لوگو
+           ======================================================== */
+        $(document).on('click', '#btnChooseLogo', function() {
+            $('#logoInput')[0].click();
+        });
+
+        $(document).on('change', '#logoInput', function() {
+            const file = this.files[0];
+            if (!file) return;
+
+            CustomerModal.setLogoFile(file);
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#logoPreview').attr('src', e.target.result);
+                $('#btnRemoveLogo').removeClass('d-none');
+            };
+            reader.readAsDataURL(file);
+
+            // اجازه بده اگه بخواد دوباره همون فایل رو انتخاب کنه، change دوباره fire بشه
+            this.value = '';
+        });
+
+        $(document).on('click', '#btnRemoveLogo', function() {
+            CustomerModal.setLogoFile(null);
+            $('#logoPreview').attr('src', DEFAULT_LOGO);
+            $(this).addClass('d-none');
+        });
+
+        /* ========================================================
+           بخش ۴: عملیات ذخیره (Create / Update)
+           ----------------------------------------------------------
+           چون این درخواست شامل فایل هست، مستقیم با $.ajax + FormData
+           میفرستیم (نه از طریق AppAjax.post، چون مطمئن نیستیم اون
+           تابع کمکی از FormData پشتیبانی میکنه یا body رو JSON.stringify
+           میکنه). اگه AppAjax یه گزینه‌ی صریح برای ارسال FormData داره،
+           بگو تا این تابع رو دوباره از طریق همون بنویسم.
+           ======================================================== */
+        function saveCustomer() {
+            const id = $('#editId').val();
+            const name = $('#catName').val().trim();
+            debugger;
+            if (!name) {
+                toastr.warning('نام مشتری الزامی است');
+                return;
+            }
+
+            const isEdit = !!id;
+            const url = isEdit ? `${CustomerUrls.update}?id=${id}` : CustomerUrls.create;
+
+            const formData = new FormData();
+            formData.append('Name', name);
+            if (isEdit) {
+                formData.append('Id', id);
+            }
+
+            
+//             const logoFile = CustomerModal.getLogoFile();
+// if (logoFile) {
+//     formData.append('LogoPath', logoFile);
+// } else {
+//     const currentPath = CustomerModal.getCurrentLogoPath();
+//     if (currentPath) formData.append('ExistingLogoPath', currentPath);
+// }
+
+const newLogo = CustomerModal.getLogoFile();
+if (newLogo) formData.append('LogoPath', newLogo);
+
+            // const logoFile = CustomerModal.getLogoFile();
+            // if (logoFile) {
+            //     اسم فیلد باید دقیقاً LogoPath باشه تا با CreateCustomerDto بایند بشه
+            //     formData.append('LogoPath', logoFile);
+            // }
+
+            const $btn = $('#saveBtn');
+            const originalText = $btn.text();
+            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> در حال ذخیره...');
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false
+            })
+                .done(function() {
+                    toastr.success(isEdit ? 'مشتری ویرایش شد' : 'مشتری افزوده شد');
+                    CustomerModal.close();
+                    setTimeout(() => location.reload(), 800);
+                })
+                .fail(function(xhr) {
+                    const message = (xhr.responseJSON && (xhr.responseJSON.message || xhr.responseJSON))
+                        || xhr.responseText
+                        || 'خطا در ذخیره اطلاعات';
+                    toastr.error(typeof message === 'string' ? message : 'خطا در ذخیره اطلاعات');
+                })
+                .always(function() {
+                    $btn.prop('disabled', false).text(originalText);
+                });
+        }
+
+        /* ========================================================
+           بخش ۵: عملیات حذف
+           ======================================================== */
+        function deleteCategory(id) {
+            Swal.fire({
+                title: 'حذف مشتری',
+                text: 'این مشتری برای همیشه حذف می‌شود. آیا مطمئن هستید؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'بله، حذف شود',
+                cancelButtonText: 'انصراف',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                reverseButtons: true,
+                customClass: { popup: 'swal-rtl' }
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+
+                AppAjax.post(`${CustomerUrls.delete}?id=${id}`)
+                    .then(() => {
+                        toastr.success('مشتری حذف شد');
+                        $(`#cat-${id}`).fadeOut(300, function() {
+                            $(this).remove();
+                            checkEmptyState();
+                        });
+                    })
+                    .catch(() => {
+                        // پیام خطا از AppAjax نمایش داده شده
+                    });
+            });
+        }
+
+        // بعد از حذف آخرین ردیف، پیام "خالی" رو نشون بده
+        function checkEmptyState() {
+            if ($('#categoryList tbody tr').length === 0) {
+                $('#categoryList tbody').html(`
+                                    <tr id="emptyState">
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            <i class="bi bi-tags fs-4 d-block mb-2"></i>
+                                            مشتری‌ای ثبت نشده
+                                        </td>
+                                    </tr>
+                                `);
+            }
+        }
+
+        /* ========================================================
+           بخش ۶: اتصال رویدادها (Event Binding)
+           ======================================================== */
+     $(function () {
+    $('#btnAddCustomer').on('click', () => CustomerModal.open());
+    $('#saveBtn').on('click', saveCustomer);
+
+    $(document).on('click', '.js-edit-customer', function () {
+        debugger;
+        const id = $(this).data('id');
+
+        AppAjax.get(`${CustomerUrls.getDetails}?id=${id}`)
+            .then(data => {
+                CustomerModal.open(id, data.name, data.logoPath);
+            })
+            .catch(() => {});
+    });
+
+    $(document).on('click', '.js-delete-category', function () {
+        deleteCategory($(this).data('id'));
+    });
+});
+    </script>
+}
