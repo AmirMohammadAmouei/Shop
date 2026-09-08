@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Transportation.Buisness._0.Common;
+using Transportation.Buisness._0.Common.Paging;
 using Transportation.Buisness.Services.Customers;
 using Transportation.Buisness.Services.Customers.Dtos;
-using static System.Net.WebRequestMethods;
 
 namespace Transportation.WebUI.Areas.Admin.Controllers
 {
@@ -20,10 +19,10 @@ namespace Transportation.WebUI.Areas.Admin.Controllers
         {
             var response = await _customerService.List(request);
 
-            if (response.IsSucceeded)
-                return View(response.Data);
+            if (!response.IsSucceeded)
+                return View(new SPFOutPutDto<CustomerListResponseDto>());
 
-            return View(response.Message);
+            return View(response.Data);
         }
 
         [HttpGet]

@@ -10,7 +10,7 @@ namespace Transportation.Buisness.Services.MobileApps.Dtos
         public string Version { get; set; }
         public string Platform { get; set; }
         public bool IsActive { get; set; }
-        public IFormFile File { get; set; }
-        public IFormFile Icon { get; set; }
+        public IFormFile? File { get; set; }
+        public IFormFile? Icon { get; set; }
     }
 }

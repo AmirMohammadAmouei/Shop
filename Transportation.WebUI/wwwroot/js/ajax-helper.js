@@ -97,7 +97,7 @@ const AppAjax = (function () {
         get: (url, options) => request('GET', url, null, options),
         post: (url, data, options) => request('POST', url, data, options),
         put: (url, data, options) => request('PUT', url, data, options),
-        delete: (url, options) => request('DELETE', url, null, options)
+        delete: (url, options) => request('POST', url, null, options)
     };
 })();
 

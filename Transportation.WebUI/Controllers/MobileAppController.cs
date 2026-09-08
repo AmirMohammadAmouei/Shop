@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Transportation.Buisness._0.Common.FileManager;
+using Transportation.Buisness._0.Common.Paging;
 using Transportation.Buisness.Services.MobileApps;
 using Transportation.Buisness.Services.MobileApps.Dtos;
 
@@ -20,10 +21,10 @@ namespace Transportation.WebUI.Controllers
         {
             var mobileApps = await _mobileAppService.List(request);
 
-            if (mobileApps.IsSucceeded)
-                return View(mobileApps.Data);
+            if (!mobileApps.IsSucceeded)
+                return View(new SPFOutPutDto<MobileAppListResponseDto>());
 
-            return View(new MobileAppListRequestDto());
+            return View(mobileApps.Data);
         }
 
         [HttpGet]

@@ -7,6 +7,19 @@
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
+<style>
+    #appDescriptionEditor .ql-editor {
+        direction: rtl;
+        text-align: right;
+    }
+
+        #appDescriptionEditor .ql-editor.ql-blank::before {
+            right: 15px;
+            left: unset;
+            text-align: right;
+        }
+</style>
+
 <div id="main">
     <div class="topbar">
         <div>
@@ -154,8 +167,11 @@
                     </div>
                     <div class="col-12">
                         <label class="form-label">توضیحات</label>
-                        <textarea class="form-control" id="appDescription" rows="3"
-                                  placeholder="ویژگی‌ها و تغییرات این نسخه..."></textarea>
+                        <div id="appDescriptionEditor"
+                             style="height:140px; border-radius:10px; background:#fff;
+                            font-family:'Vazirmatn',sans-serif; direction:rtl;">
+                        </div>
+                        <input type="hidden" id="appDescription">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">
@@ -191,6 +207,19 @@
             delete: '@Url.Action("Delete")'
         };
 
+        const appQuill = new Quill('#appDescriptionEditor', {
+            theme: 'snow',
+            placeholder: 'ویژگی‌ها و تغییرات این نسخه...',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    [{ 'align': [] }],
+                    ['clean']
+                ]
+            }
+        });
+
         /* ===== Modal ===== */
         const MobileAppModal = (function() {
             let instance = null;
@@ -204,7 +233,8 @@
             function open(data) {
                 $('#editId').val(data?.id || '');
                 $('#appTitle').val(data?.title || '');
-                $('#appDescription').val(data?.description || '');
+                // $('#appDescription').val(data?.description || '');
+
                 $('#appVersion').val(data?.version || '');
                 $('#appPlatform').val(data?.platform || 'Android');
                 $('#appIsActive').prop('checked', data ? data.isActive : true);
@@ -212,6 +242,12 @@
                 $('#appIcon').val('');
                 $('#iconPreviewWrap').hide();
                 $('#modalTitle').text(data?.id ? 'ویرایش اپلیکیشن' : 'اپلیکیشن جدید');
+
+                if (data?.description) {
+                    appQuill.root.innerHTML = data.description;
+                } else {
+                    appQuill.setText('');
+                }
 
                 // فایل در ویرایش اجباری نیست
                 $('#fileRequired').toggle(!data?.id);
@@ -246,6 +282,16 @@
             const title = $('#appTitle').val().trim();
             const file = document.getElementById('appFile').files[0];
             console.log('id:', id, typeof id, 'isEdit:', isEdit);
+            
+            const descText = appQuill.getText().trim();
+            document.getElementById('appDescription').value =
+                descText.length > 0 ? appQuill.root.innerHTML : '';
+
+            if (!document.getElementById('appDescription').value) {
+                toastr.warning('توضیحات الزامی است');
+                return;
+            }
+
             if (!title) { toastr.warning('نام اپلیکیشن الزامی است'); return; }
             if (!isEdit && !file) { toastr.warning('فایل اپلیکیشن الزامی است'); return; }
             if (!$('#appVersion').val().trim()) { toastr.warning('نسخه الزامی است'); return; }
@@ -254,7 +300,7 @@
             const formData = new FormData();
             if (isEdit) formData.append('Id', id);
             formData.append('Title', title);
-            formData.append('Description', $('#appDescription').val().trim());
+            formData.append('Description', document.getElementById('appDescription').value);
             formData.append('Version', $('#appVersion').val().trim());
             formData.append('Platform', $('#appPlatform').val());
             formData.append('IsActive', $('#appIsActive').is(':checked'));

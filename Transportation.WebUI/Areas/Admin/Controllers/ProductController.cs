@@ -1,7 +1,4 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Transportation.Buisness._0.Common.Constants;
+﻿using Microsoft.AspNetCore.Mvc;
 using Transportation.Buisness._0.Common.FileManager;
 using Transportation.Buisness._0.Common.Paging;
 using Transportation.Buisness.Services.ProductCategories;
@@ -100,7 +97,7 @@ namespace Transportation.WebUI.Areas.Admin.Controllers
             return Ok();
         }
 
-        [HttpDelete]
+        [HttpPost]
         public async Task<IActionResult> Delete(long id)
         {
             var result = await _productService.Delete(id);

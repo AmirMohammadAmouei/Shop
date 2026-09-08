@@ -11,10 +11,11 @@ namespace Transportation.Buisness.Services.AboutUs
     public class AboutUsService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IRepository<Transportation.Entities.Entities.AboutUs> _aboutUsRepository;
+        private readonly IRepository<Entities.Entities.AboutUs> _aboutUsRepository;
         private readonly IFileService _uploadFileService;
         private readonly IAboutUsMapper _mapper;
-        public AboutUsService(IUnitOfWork unitOfWork, IRepository<Transportation.Entities.Entities.AboutUs> aboutUsRepository, IFileService uploadFileService, IAboutUsMapper mapper)
+        public AboutUsService(IUnitOfWork unitOfWork, IRepository<Entities.Entities.AboutUs> aboutUsRepository,
+            IFileService uploadFileService, IAboutUsMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _aboutUsRepository = aboutUsRepository;
