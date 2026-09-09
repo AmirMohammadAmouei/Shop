@@ -4,6 +4,11 @@ namespace Transportation.Entities.Entities
 {
     public class AboutUs : Entity<long>
     {
+        public AboutUs()
+        {
+            Galleries = new List<AboutUsGallery>();
+        }
+
         public string Title { get; set; }
         public string Description { get; set; }
         public string? Vision { get; set; }
@@ -12,5 +17,6 @@ namespace Transportation.Entities.Entities
         public string Email { get; set; }
         public string Address { get; set; }
         public string LogoPath { get; set; }
+        public ICollection<AboutUsGallery> Galleries { get; set; }
     }
 }
