@@ -134,11 +134,11 @@
                         <div class="d-flex flex-column align-items-center gap-3">
                             <div id="logoPreview"
                                  style="width:110px; height:110px; border-radius:16px;
-                                        background:var(--blue-100);
-                                        border:2px dashed var(--line);
-                                        display:flex; align-items:center;
-                                        justify-content:center; overflow:hidden;
-                                        transition:.2s;">
+                                background:var(--blue-100);
+                                border:2px dashed var(--line);
+                                display:flex; align-items:center;
+                                justify-content:center; overflow:hidden;
+                                transition:.2s;">
                                 @if (!string.IsNullOrEmpty(Model.LogoPath))
                                 {
                                     <img src="@Model.LogoPath"
@@ -156,6 +156,61 @@
                     </div>
                 </div>
 
+                <!-- گالری تصاویر -->
+                <div class="card-soft mb-4">
+                    <div class="px-4 pt-4 pb-2 d-flex align-items-center gap-2 mb-3"
+                         style="border-bottom:1px solid var(--line);">
+                        <div class="stat-icon" style="width:36px;height:36px;font-size:.95rem;">
+                            <i class="bi bi-images"></i>
+                        </div>
+                        <div>
+                            <div class="section-title mb-0">گالری تصاویر</div>
+                            <div class="section-sub">تصاویر بخش درباره ما در صفحه اصلی</div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+
+                        <!-- تصاویر موجود -->
+                        @if (Model.Galleries.Any())
+                        {
+                            <label class="form-label mb-2">تصاویر فعلی</label>
+                            <div class="d-flex flex-wrap gap-2 mb-4" id="existingGallery">
+                                @foreach (var img in Model.Galleries)
+                                {
+                                    <div class="position-relative" style="width:88px;height:88px;" id="img-@img.Id">
+                                        <img src="@img.Path"
+                                             style="width:88px;height:88px;object-fit:cover;
+                                        border-radius:10px;border:1px solid var(--line);">
+                                        <button type="button"
+                                                onclick="removeExistingGallery(@img.Id)"
+                                                title="حذف"
+                                                style="position:absolute;top:-7px;left:-7px;
+                                            width:22px;height:22px;border-radius:50%;
+                                            background:#dc3545;border:none;color:#fff;
+                                            font-size:13px;line-height:1;padding:0;
+                                            cursor:pointer;display:flex;align-items:center;
+                                            justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.2);">
+                                            ×
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-3 mb-3" style="color:var(--gray);font-size:.85rem;">
+                                <i class="bi bi-images d-block mb-1" style="font-size:1.8rem;opacity:.3;"></i>
+                                تصویری ثبت نشده
+                            </div>
+                        }
+
+                        <!-- آپلود جدید -->
+                        <label class="form-label">افزودن تصویر جدید</label>
+                        <input type="file" class="form-control" id="aGalleries" accept="image/*" multiple>
+                        <div class="d-flex flex-wrap gap-2 mt-3" id="newGalleryPreview"></div>
+
+                    </div>
+                </div>
                 <!-- پیش‌نمایش -->
                 <div class="card-soft">
                     <div class="px-4 pt-4 pb-2 d-flex align-items-center gap-2 mb-3"
@@ -174,9 +229,9 @@
                              style="border-bottom:1px solid var(--line);">
                             <div id="prevLogoWrap"
                                  style="width:44px; height:44px; border-radius:10px;
-                                        background:var(--blue-100); border:1px solid var(--line);
-                                        overflow:hidden; flex-shrink:0;
-                                        display:flex; align-items:center; justify-content:center;">
+                                background:var(--blue-100); border:1px solid var(--line);
+                                overflow:hidden; flex-shrink:0;
+                                display:flex; align-items:center; justify-content:center;">
                                 @if (!string.IsNullOrEmpty(Model.LogoPath))
                                 {
                                     <img src="@Model.LogoPath"
@@ -200,7 +255,7 @@
 
                         <p class="section-sub mb-3" id="prevDesc"
                            style="white-space:pre-line; line-height:1.8; font-size:.82rem;
-                                  max-height:100px; overflow:hidden;">
+                            max-height:100px; overflow:hidden;">
                             @(Model.Description ?? "توضیحات شرکت اینجا نمایش داده می‌شود.")
                         </p>
 
@@ -230,77 +285,136 @@
 </div>
 
 @section Scripts {
-<script>
-    const AboutUsUrls = {
-        create: '@Url.Action("Create")',
-        update: '@Url.Action("Update")'
-    };
-
-    // پیش‌نمایش زنده
-    const liveMap = {
-        aTitle:       'prevTitle',
-        aDescription: 'prevDesc',
-        aPhone:       'prevPhone',
-        aEmail:       'prevEmail',
-        aAddress:     'prevAddress'
-    };
-    Object.entries(liveMap).forEach(([src, dst]) => {
-        document.getElementById(src)?.addEventListener('input', e =>
-            document.getElementById(dst).textContent = e.target.value || '—');
-    });
-
-    // پیش‌نمایش لوگو
-    document.getElementById('aLogo').addEventListener('change', function() {
-        const file = this.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = e => {
-            const imgHtml = `<img src="${e.target.result}"
-                                  style="width:100%;height:100%;object-fit:cover;">`;
-            document.getElementById('logoPreview').innerHTML = imgHtml;
-            document.getElementById('prevLogoWrap').innerHTML = imgHtml;
+    <script>
+        const AboutUsUrls = {
+            create: '@Url.Action("Create")',
+            update: '@Url.Action("Update")'
         };
-        reader.readAsDataURL(file);
-    });
 
-    // ذخیره
-    document.getElementById('btnSave').addEventListener('click', async function() {
-        const btn = this;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm ms-1"></span> در حال ذخیره...';
+        // پیش‌نمایش زنده
+        const liveMap = {
+            aTitle: 'prevTitle',
+            aDescription: 'prevDesc',
+            aPhone: 'prevPhone',
+            aEmail: 'prevEmail',
+            aAddress: 'prevAddress'
+        };
+        Object.entries(liveMap).forEach(([src, dst]) => {
+            document.getElementById(src)?.addEventListener('input', e =>
+                document.getElementById(dst).textContent = e.target.value || '—');
+        });
 
-        const id  = document.getElementById('aboutId').value;
-        const isEdit = id && parseInt(id) > 0;
+        // پیش‌نمایش لوگو
+        document.getElementById('aLogo').addEventListener('change', function() {
+            const file = this.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const imgHtml = `<img src="${e.target.result}"
+                                                  style="width:100%;height:100%;object-fit:cover;">`;
+                document.getElementById('logoPreview').innerHTML = imgHtml;
+                document.getElementById('prevLogoWrap').innerHTML = imgHtml;
+            };
+            reader.readAsDataURL(file);
+        });
 
-        const fd = new FormData();
-        if (isEdit) fd.append('Id', id);
-        fd.append('Title',       document.getElementById('aTitle').value.trim());
-        fd.append('Description', document.getElementById('aDescription').value.trim());
-        // fd.append('Vision',      document.getElementById('aVision').value.trim());
-        // fd.append('Mission',     document.getElementById('aMission').value.trim());
-        fd.append('Phone',       document.getElementById('aPhone').value.trim());
-        fd.append('Email',       document.getElementById('aEmail').value.trim());
-        fd.append('Address',     document.getElementById('aAddress').value.trim());
+               let deletedGalleryIds = [];
+let selectedGalleries = [];
 
-        const logo = document.getElementById('aLogo').files[0];
-        if (logo) fd.append('Logo', logo);
-
-        try {
-            const url = isEdit ? AboutUsUrls.update : AboutUsUrls.create;
-            const res = await fetch(url, { method: 'POST', body: fd });
-
-            if (res.ok) {
-                toastr.success(isEdit ? 'اطلاعات ویرایش شد' : 'اطلاعات ثبت شد');
-                if (!isEdit) setTimeout(() => location.reload(), 900);
-            } else {
-                toastr.error(await res.text() || 'خطایی رخ داده است');
-            }
-        } catch {
-            toastr.error('خطا در ارتباط با سرور');
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-check-lg ms-1"></i> ذخیره تغییرات';
+document.getElementById('aGalleries').addEventListener('change', function() {
+    const newFiles = Array.from(this.files);
+    debugger;
+    newFiles.forEach(file => {
+        if (!selectedGalleries.find(f => f.name === file.name && f.size === file.size)) {
+            selectedGalleries.push(file);
+            const reader = new FileReader();
+            const idx = selectedGalleries.length - 1;
+            reader.onload = e => {
+                document.getElementById('newGalleryPreview').insertAdjacentHTML('beforeend', `
+                    <div class="position-relative" style="width:88px;height:88px;" id="new-gallery-${idx}">
+                        <img src="${e.target.result}"
+                             style="width:88px;height:88px;object-fit:cover;
+                                    border-radius:10px;border:1px solid var(--line);">
+                        <button type="button" onclick="removeNewGallery(${idx})"
+                                style="position:absolute;top:-7px;left:-7px;
+                                       width:22px;height:22px;border-radius:50%;
+                                       background:#dc3545;border:none;color:#fff;
+                                       font-size:13px;line-height:1;padding:0;
+                                       cursor:pointer;display:flex;align-items:center;
+                                       justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.2);">
+                            ×
+                        </button>
+                    </div>`);
+            };
+            reader.readAsDataURL(file);
         }
     });
-</script>
+    this.value = '';
+});
+
+function removeNewGallery(idx) {
+    selectedGalleries.splice(idx, 1);
+    document.getElementById(`new-gallery-${idx}`)?.remove();
+    document.querySelectorAll('#newGalleryPreview .position-relative').forEach((el, i) => {
+        el.id = `new-gallery-${i}`;
+        el.querySelector('button').setAttribute('onclick', `removeNewGallery(${i})`);
+    });
+}
+
+function removeExistingGallery(id) {
+    deletedGalleryIds.push(id);
+    document.getElementById(`img-${id}`)?.remove();
+}
+
+
+        // ذخیره
+        document.getElementById('btnSave').addEventListener('click', async function() {
+           
+               
+            const btn = this;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm ms-1"></span> در حال ذخیره...';
+
+            const id = document.getElementById('aboutId').value;
+            const isEdit = id && parseInt(id) > 0;
+
+            const fd = new FormData();
+            if (isEdit) fd.append('Id', id);
+            fd.append('Title', document.getElementById('aTitle').value.trim());
+            fd.append('Description', document.getElementById('aDescription').value.trim());
+            // fd.append('Vision',      document.getElementById('aVision').value.trim());
+            // fd.append('Mission',     document.getElementById('aMission').value.trim());
+            fd.append('Phone', document.getElementById('aPhone').value.trim());
+            fd.append('Email', document.getElementById('aEmail').value.trim());
+            fd.append('Address', document.getElementById('aAddress').value.trim());
+
+            const logo = document.getElementById('aLogo').files[0];
+            const files = document.getElementById('aGalleries').files;
+            const imageKey = isEdit ? 'NewImages' : 'Images';
+
+          
+
+            if (logo) fd.append('Logo', logo);
+
+            selectedGalleries.forEach(file => fd.append('NewImages', file));
+deletedGalleryIds.forEach(id => fd.append('DeletedGalleryIds', id));
+
+            try {
+                const url = isEdit ? AboutUsUrls.update : AboutUsUrls.create;
+                const res = await fetch(url, { method: 'POST', body: fd });
+
+                if (res.ok) {
+                    toastr.success(isEdit ? 'اطلاعات ویرایش شد' : 'اطلاعات ثبت شد');
+                    if (!isEdit) setTimeout(() => location.reload(), 900);
+                } else {
+                    toastr.error(await res.text() || 'خطایی رخ داده است');
+                }
+            } catch {
+                toastr.error('خطا در ارتباط با سرور');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-lg ms-1"></i> ذخیره تغییرات';
+            }
+        });
+    </script>
 }

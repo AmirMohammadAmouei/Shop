@@ -37,7 +37,7 @@ namespace Transportation.DataAccess._0.Common
                 .AsQueryable();
         }
 
-        public async Task<T> GetByIdAsync(Expression<Func<T, bool>> expression, CancellationToken cancellationToken = default)
+        public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> expression, CancellationToken cancellationToken = default)
         {
             return await _context.Set<T>().Where(expression).FirstOrDefaultAsync(cancellationToken);
         }

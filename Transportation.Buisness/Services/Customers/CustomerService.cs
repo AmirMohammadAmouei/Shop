@@ -50,7 +50,7 @@ namespace Transportation.Buisness.Services.Customers
             if (id == 0)
                 return Result<CustomerDetailsDto>.Failed("شناسه اارسالی نامعتبر است");
 
-            var customer = await _customerRepository.GetByIdAsync(x => !x.IsDeleted && x.Id == id);
+            var customer = await _customerRepository.FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == id);
 
             if (customer == null)
                 return Result<CustomerDetailsDto>.Failed("خطا در پیدا شدن مشتری");
@@ -65,7 +65,7 @@ namespace Transportation.Buisness.Services.Customers
             if (request == null)
                 return Result<long>.Failed("داده های ارسالی نامعتبر است");
 
-            var customer = await _customerRepository.GetByIdAsync(x => !x.IsDeleted && x.Name.Contains(request.Name));
+            var customer = await _customerRepository.FirstOrDefaultAsync(x => !x.IsDeleted && x.Name.Contains(request.Name));
 
             if (customer != null)
                 return Result<long>.Failed("نام مشتری وارده شده تکراری است");
@@ -94,7 +94,7 @@ namespace Transportation.Buisness.Services.Customers
             if (request == null)
                 return Result.Failed("داده های ارسالی نامعتبر است");
 
-            var customer = await _customerRepository.GetByIdAsync(x => !x.IsDeleted && x.Id == request.Id);
+            var customer = await _customerRepository.FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == request.Id);
 
             if (customer == null)
                 return Result.Failed("مشتری با شناسه ارسالی یافت نشد");
@@ -121,7 +121,7 @@ namespace Transportation.Buisness.Services.Customers
             if (id == 0)
                 return Result.Failed("شناسه ارسالی نامعتبر است");
 
-            var customer = await _customerRepository.GetByIdAsync(x => !x.IsDeleted && x.Id == id);
+            var customer = await _customerRepository.FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == id);
 
             if (customer == null)
                 return Result.Failed("مشتری با شناسه ارسالی یافت نشد");

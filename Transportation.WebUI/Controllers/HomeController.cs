@@ -32,6 +32,7 @@ namespace Transportation.WebUI.Controllers
             var aboutUsResult = await _aboutUsService.GetDetails();
             var categoriesResult = await _productCategoryService.List(request);
             var customerResult = await _customerService.List(new CustomerListRequestDto());
+            var aboutUs = await _aboutUsService.GetDetails();
             var model = new HomeViewModel
             {
                 AboutUs = aboutUsResult.IsSucceeded

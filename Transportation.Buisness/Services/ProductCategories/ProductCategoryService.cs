@@ -45,7 +45,7 @@ namespace Transportation.Buisness.Services.ProductCategories
 
         public async Task<Result<ProductCategoryDetailsDto>> GetDetails(long id)
         {
-            var productCategory = await _productCategoryRepository.GetByIdAsync(x => !x.IsDeleted && x.Id == id);
+            var productCategory = await _productCategoryRepository.FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == id);
 
             if (productCategory == null)
                 return Result<ProductCategoryDetailsDto>.Failed("دسته بندی با شناسه ارسالی یافت نشد");

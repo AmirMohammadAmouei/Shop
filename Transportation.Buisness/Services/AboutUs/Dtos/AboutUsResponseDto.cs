@@ -11,6 +11,7 @@
         public string Email { get; set; }
         public string Address { get; set; }
         public string LogoPath { get; set; }
+        public List<AboutUsGalleriesResponseDto> Galleries { get; set; } = new();
     }
 
 }

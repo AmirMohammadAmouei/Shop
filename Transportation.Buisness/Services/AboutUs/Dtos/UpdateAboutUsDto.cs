@@ -13,6 +13,8 @@ namespace Transportation.Buisness.Services.AboutUs.Dtos
         public string Email { get; set; }
         public string Address { get; set; }
         public IFormFile Logo { get; set; }
+        public List<IFormFile> NewImages { get; set; } = new();
+        public List<long> DeletedGalleryIds { get; set; } = new();
     }
 
 }

@@ -5,6 +5,9 @@ namespace Transportation.Entities.Entities
     public class AboutUsGallery : Entity<long>
     {
         public long AboutUsId { get; set; }
+        public string FileName { get; set; }
+        public string Path { get; set; }
+        public string OriginalFileName { get; set; }
         public AboutUs AboutUs { get; set; }
     }
 }

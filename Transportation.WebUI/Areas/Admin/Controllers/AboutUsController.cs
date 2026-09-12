@@ -45,5 +45,16 @@ namespace Transportation.WebUI.Areas.Admin.Controllers
 
             return Ok();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetGalleryImage(long id)
+        {
+            var response = await _aboutUsService.GetGalleryImagePath(id);
+
+            if (!response.IsSucceeded)
+                return BadRequest(response.Message);
+
+            return Ok(response.Data);
+        }
     }
 }

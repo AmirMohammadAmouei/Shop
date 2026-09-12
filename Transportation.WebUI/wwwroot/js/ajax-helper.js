@@ -8,13 +8,11 @@
  *   AppAjax.get(url).then(res => ...);
  */
 const AppAjax = (function () {
-    // خواندن توکن CSRF از فرم مخفی موجود در Layout
     function getAntiForgeryToken() {
         const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
         return tokenInput ? tokenInput.value : null;
     }
 
-    // تنظیم پیش‌فرض هدر CSRF برای تمام درخواست‌های jQuery Ajax
     function setup() {
         $.ajaxSetup({
             beforeSend: function (xhr) {
@@ -42,6 +40,7 @@ const AppAjax = (function () {
 
     // درخواست عمومی — پایه‌ی همه‌ی متدهای دیگر
     function request(method, url, data, options) {
+        debugger;
         options = options || {};
         const defaultErrorMessage = options.errorMessage || 'خطایی در ارتباط با سرور رخ داد';
         if (options.showLoading !== false) {

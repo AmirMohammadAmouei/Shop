@@ -53,7 +53,7 @@ namespace Transportation.Buisness.Services.MobileApps
             if (id == 0)
                 return Result<MobileAppDetailsDto>.Failed("شناسه ارسالی نامعتبر است");
 
-            var mobile = await _mobileAppRepository.GetByIdAsync(x => !x.IsDeleted && x.Id == id);
+            var mobile = await _mobileAppRepository.FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == id);
 
             if (mobile == null)
                 return Result<MobileAppDetailsDto>.Failed("اپ موبایل با شناسه ارسالی یافت نشد");
@@ -104,7 +104,7 @@ namespace Transportation.Buisness.Services.MobileApps
             if (request == null)
                 return Result.Failed("داده های ارسالی نامعتبر است");
 
-            var mobile = await _mobileAppRepository.GetByIdAsync(x => !x.IsDeleted && x.Id == request.Id);
+            var mobile = await _mobileAppRepository.FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == request.Id);
 
             if (mobile == null)
                 return Result.Failed("برنامه ایی با شناسه ارسالی یافت نشد یافت نشد");
@@ -178,7 +178,7 @@ namespace Transportation.Buisness.Services.MobileApps
             if (id == 0)
                 return Result.Failed("شناسه ارسالی نامعتبر است");
 
-            var app = await _mobileAppRepository.GetByIdAsync(x => !x.IsDeleted && x.Id == id);
+            var app = await _mobileAppRepository.FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == id);
 
             if (app == null)
                 return Result.Failed("اپ مورد نظر یافت نشد یا قبلا حذف شده است.");

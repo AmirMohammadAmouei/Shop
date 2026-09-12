@@ -12,5 +12,7 @@ namespace Transportation.Entities.Entities
         public string IconPath { get; set; }
         public long FileSize { get; set; }
         public bool IsActive { get; set; } = true;
+        public long? CategoryId { get; set; } 
+        public MobileAppCategory Category { get; set; } 
     }
 }

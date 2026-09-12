@@ -180,6 +180,89 @@ namespace Transportation.DataAccess.Migrations
                     b.ToTable("AboutUs");
                 });
 
+            modelBuilder.Entity("Transportation.Entities.Entities.AboutUsGallery", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AboutUsId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdtedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AboutUsId");
+
+                    b.ToTable("AboutUsGallery");
+                });
+
+            modelBuilder.Entity("Transportation.Entities.Entities.AboutUsFeature", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdtedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CompanyFeatures");
+                });
+
             modelBuilder.Entity("Transportation.Entities.Entities.Customer", b =>
                 {
                     b.Property<long>("Id")
@@ -220,6 +303,9 @@ namespace Transportation.DataAccess.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CategoryId")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -265,7 +351,43 @@ namespace Transportation.DataAccess.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.ToTable("MobileApps");
+                });
+
+            modelBuilder.Entity("Transportation.Entities.Entities.MobileAppCategory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("ParentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("UpdtedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("MobileAppCategories");
                 });
 
             modelBuilder.Entity("Transportation.Entities.Entities.Product", b =>
@@ -556,6 +678,35 @@ namespace Transportation.DataAccess.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Transportation.Entities.Entities.AboutUsGallery", b =>
+                {
+                    b.HasOne("Transportation.Entities.Entities.AboutUs", "AboutUs")
+                        .WithMany("Galleries")
+                        .HasForeignKey("AboutUsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AboutUs");
+                });
+
+            modelBuilder.Entity("Transportation.Entities.Entities.MobileApp", b =>
+                {
+                    b.HasOne("Transportation.Entities.Entities.MobileAppCategory", "Category")
+                        .WithMany("MobileApps")
+                        .HasForeignKey("CategoryId");
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Transportation.Entities.Entities.MobileAppCategory", b =>
+                {
+                    b.HasOne("Transportation.Entities.Entities.MobileAppCategory", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
+                });
+
             modelBuilder.Entity("Transportation.Entities.Entities.Product", b =>
                 {
                     b.HasOne("Transportation.Entities.Entities.ProductCategory", "ProductCategory")
@@ -576,6 +727,18 @@ namespace Transportation.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Transportation.Entities.Entities.AboutUs", b =>
+                {
+                    b.Navigation("Galleries");
+                });
+
+            modelBuilder.Entity("Transportation.Entities.Entities.MobileAppCategory", b =>
+                {
+                    b.Navigation("Children");
+
+                    b.Navigation("MobileApps");
                 });
 
             modelBuilder.Entity("Transportation.Entities.Entities.Product", b =>
